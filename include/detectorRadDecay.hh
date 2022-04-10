@@ -3,7 +3,7 @@
 
 #include "G4VSensitiveDetector.hh"
 #include "G4RootAnalysisManager.hh"
-#include "G4AnalysisManager.hh"
+#include "g4root.hh"
 
 #include "run.hh"
 

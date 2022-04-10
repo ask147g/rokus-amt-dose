@@ -45,7 +45,7 @@ int main(int argc, char** argv) {
 	
 	UImanager->ApplyCommand("/control/execute vis.mac");
 	//UImanager->ApplyCommand("/control/execute plot.mac");
-	UImanager->ApplyCommand("/run/beamOn 898100");
+	UImanager->ApplyCommand("/run/beamOn 89810");
 
 	SourceActivity *Activity = new SourceActivity();
 	float Bq = Activity->GetActivity();
