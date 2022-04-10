@@ -1,0 +1,30 @@
+/vis/open OGL
+/vis/viewer/set/viewpointVector 1 1 1 
+/vis/drawVolume
+/vis/viewer/set/autoRefresh true
+/vis/scene/add/trajectories smooth
+/vis/scene/endOfEventAction accumulate
+/vis/ogl/set/displayListLimit 100000
+/vis/viewer/set/background 255 255 255
+/vis/viewer/set/defaultColour 0 0 0
+/vis/viewer/set/globalLineWidthScale 1
+/vis/viewer/set/defaultTextColour 0 0 0
+
+/vis/geometry/set/colour logicWorld ! 0 0 0 !
+/vis/geometry/set/colour PbLogic 128 128 128 1 .3
+/vis/geometry/set/colour AlLogic 220 220 220 1 .3
+/vis/geometry/set/visibility logicWorld 0 true
+/vis/geometry/set/forceSolid PbLogic ! !
+/vis/geometry/set/forceSolid AlLogic ! !
+
+/vis/geometry/set/colour headLogic 128 128 128 1 0.5
+/vis/geometry/set/forceSolid headLogic ! !
+/vis/geometry/set/colour sourceLogic 0 129 0 0 1
+/vis/geometry/set/forceSolid sourceLogic ! !
+/vis/geometry/set/colour fantomLogic 0 0 0 1 .3
+/vis/geometry/set/forceSolid fantomLogic ! !
+
+/vis/filtering/trajectories/create/particleFilter filt1
+/vis/filtering/trajectories/filt1/add gamma
+/vis/filtering/trajectories/filt1/add e-
+/vis/filtering/trajectories/filt1/add e+
