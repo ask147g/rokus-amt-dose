@@ -22,12 +22,12 @@ void SimpleRunAction::BeginOfRunAction(const G4Run* aRun) {
 
 void SimpleRunAction::EndOfRunAction(const G4Run* run) {
   G4int nofEvents = run->GetNumberOfEvent();
-  if (nofEvents != 89810) return;
-  G4cout << Edep*pow(10, 11)/(mass+0.) << " rad/sec " << nofEvents << G4endl;
+  if (nofEvents != 898100) return;
+  G4cout << Edep*pow(10, 10)/(mass+0.) << " rad/sec " << nofEvents << G4endl;
 
   std::ofstream out("result.txt", std::ios_base::app);
   if (out.is_open()) {
-    out << Edep*pow(10, 11)/(mass+0.) << " rad/sec " << nofEvents << std::endl;
+    out << Edep*pow(10, 10)/(mass+0.) << " rad/sec " << nofEvents << std::endl;
   }
 
   auto analysisManager = G4AnalysisManager::Instance();

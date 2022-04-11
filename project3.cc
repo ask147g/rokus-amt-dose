@@ -36,16 +36,16 @@ int main(int argc, char** argv) {
 	runManager->SetVerboseLevel(0);
 	runManager->Initialize();
 	
-	G4UIExecutive *ui = new G4UIExecutive(argc,argv);
+	//G4UIExecutive *ui = new G4UIExecutive(argc,argv);
 
-	G4VisManager *visManager = new G4VisExecutive();
-	visManager->Initialize();
+	//G4VisManager *visManager = new G4VisExecutive();
+	//visManager->Initialize();
 	
 	G4UImanager *UImanager = G4UImanager::GetUIpointer();
 	
 	UImanager->ApplyCommand("/control/execute vis.mac");
 	//UImanager->ApplyCommand("/control/execute plot.mac");
-	UImanager->ApplyCommand("/run/beamOn 89810");
+	UImanager->ApplyCommand("/run/beamOn 898100");
 
 	SourceActivity *Activity = new SourceActivity();
 	float Bq = Activity->GetActivity();

@@ -102,7 +102,7 @@ void MyDetectorConstruction::BuildRadioaciveHead(G4LogicalVolume *logicWorld, G4
 
 void MyDetectorConstruction::BuildWaterFantom(G4LogicalVolume *logicWorld, G4SDManager *SDman) {
 	G4double containerSize = 0.1*m;
-	G4double containerPlacememnt = -biasingHead+0*cm+225/2.*mm+containerSize;
+	G4double containerPlacememnt = -biasingHead+840*cm+225/2.*mm+containerSize;
 	G4double containerThickness = 1*mm;
 
 	G4NistManager *nist = G4NistManager::Instance();
