@@ -45,7 +45,10 @@ void MyDetectorConstruction::ReadSizes() {
 	biasingHead = std::stof(root_node->first_node("biasingHead")->value()); biasingHead *= CLHEP::cm;
 		// frame
 		Rsphere = std::stof(root_node->first_node("frame")->first_node("sphere")->value()); Rsphere *= CLHEP::mm;
-		
+		edge_frame = std::stof(root_node->first_node("frame")->first_node("cons")->first_node("edge")->value()); edge_frame *= CLHEP::cm;
+		biasEdge_frame = std::stof(root_node->first_node("frame")->first_node("cons")->first_node("biasEdge")->value()); biasEdge_frame *= CLHEP::cm;
+		biasing_frame = std::stof(root_node->first_node("frame")->first_node("cons")->first_node("biasing")->value()); biasing_frame *= CLHEP::mm;
+
 		// source
 		sourceSens = root_node->first_node("source")->first_attribute("sensitive")->value();
 		source_active_diameter = std::stof(root_node->first_node("source")->first_node("source_active_diameter")->value()); source_active_diameter *= CLHEP::mm;
@@ -79,6 +82,43 @@ void MyDetectorConstruction::ReadMaterials() {
     buffer.push_back('\0');
     doc.parse<0>(&buffer[0]);
 
+	// Uran
+	root_node = doc.first_node("uran");
+	ro_uran = std::stof(root_node->first_attribute("ro")->value()); ro_uran *= CLHEP::g/CLHEP::cm3;
+	for (rapidxml::xml_node<> *root = root_node->first_node("material"); root; root = root->next_sibling()) {
+		Z_uran.push_back(std::stof(root->first_node("Z")->value()));
+		A_uran.push_back(std::stof(root->first_node("A")->value()));
+		mass_uran.push_back(std::stof(root->first_node("mass")->value()));
+		perCent_uran.push_back(std::stof(root->first_node("perCent")->value()));
+	}
+
+	// Steel 12
+	root_node = doc.first_node("steel12");
+	ro_steel12 = std::stof(root_node->first_attribute("ro")->value()); ro_steel12 *= CLHEP::g/CLHEP::cm3;
+	for (rapidxml::xml_node<> *root = root_node->first_node("material"); root; root = root->next_sibling()) {
+		mat_steel12.insert({root->first_node("name")->value(), std::stof(root->first_node("perCent")->value())});
+	}
+	std::map<std::string, G4double>::iterator it = mat_steel12.begin();
+	G4double purities = 100;
+	while (it != mat_steel12.end()) {
+		purities -= (*it).second;
+		++it;
+	}
+	mat_steel12.insert({"Fe", purities});
+	
+	// Steel 02
+	root_node = doc.first_node("steel02");
+	ro_steel02 = std::stof(root_node->first_attribute("ro")->value()); ro_steel02 *= CLHEP::g/CLHEP::cm3;
+	for (rapidxml::xml_node<> *root = root_node->first_node("material"); root; root = root->next_sibling()) {
+		mat_steel02.insert({root->first_node("name")->value(), std::stof(root->first_node("perCent")->value())});
+	}
+	it = mat_steel02.begin();
+	purities = 100;
+	while (it != mat_steel02.end()) {
+		purities -= (*it).second;
+		++it;
+	}
+	mat_steel02.insert({"Fe", purities});
 }
 
 
@@ -104,25 +144,32 @@ std::pair<G4LogicalVolume*, G4VPhysicalVolume*> MyDetectorConstruction::BuildWor
 
 
 void MyDetectorConstruction::BuildRadioaciveHead(G4LogicalVolume *logicWorld) {
-	G4double roU = 18.9*g/cm3;
-	G4double roSteel12 = 7920*kg/m3;
-	G4double roSteel02 = 7920*kg/m3;
-	roSteel12 = 18.9*g/cm3;
-	roSteel02 = 18.9*g/cm3;
-
 	G4NistManager *nist = G4NistManager::Instance();
 	G4Material *galacyMat = nist->FindOrBuildMaterial("G4_Galactic");
-	galacyMat = nist->FindOrBuildMaterial("G4_Pb");
+	G4Material *CoMat = nist->FindOrBuildMaterial("G4_Co");
 
-	G4Material* Uran = new G4Material("Uran",roU,1);
-	G4Isotope* U5 = new G4Isotope("U235", 92, 235, 235.01*g/mole);
-	G4Isotope* U8 = new G4Isotope("U238", 92, 238, 238.03*g/mole);
-	G4Element* elU = new G4Element("enriched Uranium", "U", 2);
-	elU->AddIsotope(U5, 10.*perCent);
-	elU->AddIsotope(U8, 90.*perCent);
-	Uran -> AddElement(elU, 100.*perCent);
+	G4Material* Uran = new G4Material("Uran", ro_uran, 1);
+	G4Element* elU = new G4Element("Uranium", "U", Z_uran.size());
+	for (int i = 0; i < Z_uran.size(); i++) {
+		std::string name = "U" + std::to_string(A_uran[i]);
+		elU->AddIsotope(new G4Isotope(name, Z_uran[i], A_uran[i], mass_uran[i]*CLHEP::g/CLHEP::mole), perCent_uran[i]*CLHEP::perCent);
+	}
+	Uran -> AddElement(elU, 100.*CLHEP::perCent);
 
-	G4Material *steel = nist->FindOrBuildMaterial("G4_STAINLESS-STEEL");
+	G4Material *steel12 = new G4Material("steel12", ro_steel12, mat_steel12.size());
+	std::map<std::string, G4double>::iterator it = mat_steel12.begin();
+	while (it != mat_steel12.end()) {
+		steel12->AddElement(nist->FindOrBuildElement(it->first), (it->second)*CLHEP::perCent);
+		++it;
+	}
+	
+	G4Material *steel02 = new G4Material("steel02", ro_steel02, mat_steel02.size());
+	it = mat_steel02.begin();
+	while (it != mat_steel02.end()) {
+		steel02->AddElement(nist->FindOrBuildElement(it->first), (it->second)*CLHEP::perCent);
+		++it;
+	}
+	
 
 	G4double diameter_half = (source_diameter - source_active_diameter)/4.;
 	G4double height_up = (source_height-source_active_height-2*diameter_half)/4.;
@@ -153,8 +200,8 @@ void MyDetectorConstruction::BuildRadioaciveHead(G4LogicalVolume *logicWorld) {
 	innerTubSolid = new G4SubtractionSolid("innerTubSolid", innerTubSolid, sourceSolid, 0, G4ThreeVector(0,0,diameter_half));
 	
 
-	G4LogicalVolume *innerTubLogic = new G4LogicalVolume(innerTubSolid, steel, "innerTubLogic");
-	G4LogicalVolume *outerTubLogic = new G4LogicalVolume(outerTubSolid, steel, "outerTubLogic");
+	G4LogicalVolume *innerTubLogic = new G4LogicalVolume(innerTubSolid, steel12, "innerTubLogic");
+	G4LogicalVolume *outerTubLogic = new G4LogicalVolume(outerTubSolid, steel02, "outerTubLogic");
 	
 	new G4PVPlacement(0,
 					G4ThreeVector(0, 0, biasingHead+source_active_height/2.-diameter_half),
@@ -174,7 +221,7 @@ void MyDetectorConstruction::BuildRadioaciveHead(G4LogicalVolume *logicWorld) {
 					0, 
 					false);
 
-	G4LogicalVolume *sourceLogic = new G4LogicalVolume(sourceSolid, galacyMat, "sourceLogic");
+	G4LogicalVolume *sourceLogic = new G4LogicalVolume(sourceSolid, CoMat, "sourceLogic");
 	
 	new G4PVPlacement(0,
 					G4ThreeVector(0, 0, biasingHead+source_active_height/2.),
@@ -186,18 +233,18 @@ void MyDetectorConstruction::BuildRadioaciveHead(G4LogicalVolume *logicWorld) {
 					false);
 
 	// head
-	G4VSolid *headSolid = new G4Orb("headSolid", Rsphere/2.*CLHEP::mm);
+	G4VSolid *headSolid = new G4Orb("headSolid", Rsphere/2.);
 
 	G4VSolid *headSolidMinus = new G4Cons("headSolidMinus",
 											0,
-											24/2.*CLHEP::cm,
+											edge_frame/2.,
 											0,
 											source_active_diameter/2.,
-											225/2.*CLHEP::mm+75/2.*cm,
+											biasing_frame/2.+biasEdge_frame/2.,
 											0,
 											360);
 	
-	headSolid = new G4SubtractionSolid("headSolid", headSolid, headSolidMinus, 0, G4ThreeVector(0,0,-(225/2.*CLHEP::mm+75/2.*cm)));
+	headSolid = new G4SubtractionSolid("headSolid", headSolid, headSolidMinus, 0, G4ThreeVector(0,0,-(biasing_frame/2.*CLHEP::mm+biasEdge_frame/2.)));
 	headSolid = new G4SubtractionSolid("headSolid", headSolid, sourceSolid, 0, G4ThreeVector(0,0,source_active_height/2));
 	headSolid = new G4SubtractionSolid("headSolid", headSolid, sourceSolid, 0, G4ThreeVector(0,0,source_active_height/2));
 
@@ -215,7 +262,7 @@ void MyDetectorConstruction::BuildRadioaciveHead(G4LogicalVolume *logicWorld) {
 
 
 void MyDetectorConstruction::BuildContainer(G4LogicalVolume *logicWorld) {
-	G4double containerPlacememnt = -biasingHead+placement_container+225*mm-edge_container/2.;
+	G4double containerPlacememnt = -biasingHead+placement_container+biasing_frame-edge_container/2.;
 
 	G4NistManager *nist = G4NistManager::Instance();
 	G4Material *PbMat = nist->FindOrBuildMaterial("G4_Pb");
@@ -266,12 +313,11 @@ void MyDetectorConstruction::BuildContainer(G4LogicalVolume *logicWorld) {
 
 
 void MyDetectorConstruction::BuildWaterFantom(G4LogicalVolume *logicWorld) {
-	G4double containerPlacememnt = -biasingHead+placement_container+225*mm-fantom_sizeC/2.;
+	G4double containerPlacememnt = -biasingHead+placement_container+biasing_frame-fantom_sizeC/2.;
 
 	G4NistManager *nist = G4NistManager::Instance();
 	G4Material *SiMat = nist->FindOrBuildMaterial("G4_Si");
 
-	// fantom
 	G4Box *fantomWorld = new G4Box("fantomWorld",
 					(fantom_sizeA/2),
 					(fantom_sizeB/2),
@@ -301,7 +347,7 @@ void MyDetectorConstruction::ConstructSDandField() {
 		SDman->AddNewDetector(sd);
 	}
 
-	if (fantomPlaced) {
+	if (fantomPlaced && fantomSensitive) {
 		G4VSensitiveDetector* sdRadDecay = new DetectorRadDecay("fantomRadDecay");
 		SetSensitiveDetector("fantomLogic", sdRadDecay, true);
 		sdRadDecay->SetFilter(Filter);

@@ -36,7 +36,7 @@ int main(int argc, char** argv) {
 	delete Activity;
 	run->SetNumEvents(particles);
 	MyDetectorConstruction *construct = new MyDetectorConstruction(run);
-	MyActionInitialization *action = new MyActionInitialization(construct->GetBiasingHead(), run);
+	MyActionInitialization *action = new MyActionInitialization(run);
 	runManager->SetUserInitialization(action);
 	runManager->SetUserInitialization(construct);
 	runManager->SetVerboseLevel(0);

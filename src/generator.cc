@@ -1,6 +1,7 @@
 #include "generator.hh"
 
-MyPrimaryGenerator::MyPrimaryGenerator(G4double bias) : biasingHead(bias) {
+MyPrimaryGenerator::MyPrimaryGenerator() {
+	ReadSize();
 	sourceCo = new G4SingleParticleSource();
 	G4SPSEneDistribution* energy = sourceCo->GetEneDist();
 	energy->SetEnergyDisType("Mono");
@@ -9,9 +10,9 @@ MyPrimaryGenerator::MyPrimaryGenerator(G4double bias) : biasingHead(bias) {
 	G4SPSPosDistribution* position = sourceCo->GetPosDist();
 	position->SetPosDisType("Volume");
 	position->SetPosDisShape("Cylinder");
-	position->SetHalfZ(24.5/2.*CLHEP::mm);
-	position->SetRadius(21/2.*CLHEP::mm);
-	position->SetCentreCoords(G4ThreeVector(0.0*CLHEP::cm, 0.0*CLHEP::cm, biasingHead+24.5/2*CLHEP::mm));
+	position->SetHalfZ(source_active_height/2.*CLHEP::mm);
+	position->SetRadius(source_active_diameter/2.*CLHEP::mm);
+	position->SetCentreCoords(G4ThreeVector(0.0*CLHEP::cm, 0.0*CLHEP::cm, biasingHead+source_active_height/2*CLHEP::mm));
 	G4SPSAngDistribution* angular = sourceCo->GetAngDist();
 	angular->SetParticleMomentumDirection(G4ThreeVector(0.0,0.0,1.0));
 	
@@ -19,6 +20,23 @@ MyPrimaryGenerator::MyPrimaryGenerator(G4double bias) : biasingHead(bias) {
 }
 
 MyPrimaryGenerator::~MyPrimaryGenerator() {delete sourceCo;}
+
+void MyPrimaryGenerator::ReadSize() {
+	rapidxml::xml_document<> doc;
+	rapidxml::xml_node<> *root_node;
+
+    std::ifstream theFile ("data/constructData.xml");
+    std::vector<char> buffer((std::istreambuf_iterator<char>(theFile)), std::istreambuf_iterator<char>());
+    buffer.push_back('\0');
+    doc.parse<0>(&buffer[0]);
+
+	// Uran
+	root_node = doc.first_node("radioactivehead");
+	biasingHead = std::stof(root_node->first_node("biasingHead")->value()); biasingHead *= CLHEP::cm;
+	source_active_diameter = std::stof(root_node->first_node("source")->first_node("source_active_diameter")->value()); source_active_diameter *= CLHEP::mm;
+	source_active_height = std::stof(root_node->first_node("source")->first_node("source_active_height")->value()); source_active_height *= CLHEP::mm;
+
+}
 
 void MyPrimaryGenerator::GeneratePrimaries(G4Event *anEvent) {
     G4ParticleDefinition *particle = G4ParticleTable::GetParticleTable()->FindParticle("geantino");

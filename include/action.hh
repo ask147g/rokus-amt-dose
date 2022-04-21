@@ -10,7 +10,7 @@
 
 class MyActionInitialization : public G4VUserActionInitialization {
 public:
-	MyActionInitialization(G4double bias, SimpleRunAction *arun);
+	MyActionInitialization(SimpleRunAction *arun);
 	~MyActionInitialization();
 	
 	virtual void Build() const;

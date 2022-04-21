@@ -6,10 +6,17 @@
 </world>
 <radioactivehead placed="true">
     <!--cm-->
-    <biasingHead unit="cm">500</biasingHead>
+    <biasingHead>500</biasingHead>
     <!--mm-->
     <frame>
         <sphere>420</sphere>
+        <cons>
+            <!--cm-->
+            <edge>24</edge>
+            <biasEdge>75</biasEdge>
+            <!--mm-->
+            <biasing>225</biasing>
+        </cons>
     </frame>
 
     <source sensitive="true">

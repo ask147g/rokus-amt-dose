@@ -1,6 +1,6 @@
 #include "action.hh"
 
-MyActionInitialization::MyActionInitialization(G4double bias, SimpleRunAction *arun) : biasingHead(bias), run(arun) {}
+MyActionInitialization::MyActionInitialization(SimpleRunAction *arun) : run(arun) {}
 
 MyActionInitialization::~MyActionInitialization() {}
 
@@ -9,7 +9,7 @@ void MyActionInitialization::BuildForMaster() const {
 }
 
 void MyActionInitialization::Build() const {
-	MyPrimaryGenerator *generator = new MyPrimaryGenerator(biasingHead);
+	MyPrimaryGenerator *generator = new MyPrimaryGenerator();
 	SetUserAction(generator);
 	SetUserAction(new SimpleRunAction);
 }
