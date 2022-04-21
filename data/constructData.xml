@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<world>
+    <sizeA>6</sizeA>
+    <sizeB>6</sizeB>
+    <sizeC>6</sizeC>
+</world>
+<radioactivehead placed="true">
+    <!--cm-->
+    <biasingHead unit="cm">500</biasingHead>
+    <!--mm-->
+    <frame>
+        <sphere>420</sphere>
+    </frame>
+
+    <source sensitive="true">
+        <source_active_diameter>21</source_active_diameter>
+        <source_active_height>24.5</source_active_height>
+        <source_diameter>23</source_diameter>
+        <source_height>33</source_height>
+    </source>
+</radioactivehead>
+
+<container placed="true">
+    <!--mm-->
+    <thikness>1</thikness>
+    <!--cm-->
+    <edge>4</edge>
+    <!--cm-->
+    <placement>0</placement>
+</container>
+
+<fantom placed="true" sensitive="true">
+    <!--cm-->
+    <sizeA>4</sizeA>
+    <sizeB>4</sizeB>
+    <sizeC>4</sizeC>
+</fantom>

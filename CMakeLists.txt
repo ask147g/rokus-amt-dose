@@ -12,10 +12,13 @@ file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.hh)
 
 file(GLOB MACRO_FILES "*.mac")
 
-file(GLOB dataFile "data/*.txt") 
+file(GLOB dataFile "data/*.xml") 
 file(COPY ${dataFile} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/data)
 
-file(GLOB script "run.sh") 
+file(GLOB root "spectrum.cc") 
+file(COPY ${root} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+
+file(GLOB script "*.sh") 
 file(COPY ${script} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 file(COPY ${MACRO_FILES} DESTINATION ${PROJECT_BINARY_DIR})

@@ -1,19 +1,39 @@
 #include "detectorRadDecay.hh"
 
-DetectorRadDecay::DetectorRadDecay(G4String name) : G4VSensitiveDetector(name) {}
+DetectorRadDecay::DetectorRadDecay(G4String name) : G4VSensitiveDetector(name), detector(name) {}
 
-DetectorRadDecay::~DetectorRadDecay() {}
+DetectorRadDecay::~DetectorRadDecay() {
+  std::pair<std::string, std::string> output = std::make_pair(detector+"_gamma.txt", detector+"_electron.txt");
+  std::ofstream gamma_out(output.first, std::ios_base::out | std::ios_base::trunc);
+    if (gamma_out.is_open()) {
+      for (std::vector<G4double>::iterator i = gamma_data.begin(); i != gamma_data.end(); ++i)
+        gamma_out << *i << std::endl;
+      gamma_out.close();
+    }
+  
+  std::ofstream electron_out(output.second, std::ios_base::out | std::ios_base::trunc);
+    if (electron_out.is_open()) {
+      for (std::vector<G4double>::iterator i = electron_data.begin(); i != electron_data.end(); ++i)
+        electron_out << *i << std::endl;
+      electron_out.close();
+    }
+}
 
 void DetectorRadDecay::Initialize(G4HCofThisEvent*) {}
 
 G4bool DetectorRadDecay::ProcessHits(G4Step* step, G4TouchableHistory*) {
-  G4AnalysisManager *analysisManager = G4AnalysisManager::Instance();
 
   G4double kine = step->GetTrack()->GetKineticEnergy();
   G4String name = step->GetTrack()->GetParticleDefinition()->G4ParticleDefinition::GetParticleName();
+  if (kine == 0) return true;
 
-  if (name == "gamma") analysisManager->FillH1(0, kine/CLHEP::keV);
-  if (name == "e-") analysisManager->FillH1(1, kine/CLHEP::keV);
+  if (name == "gamma") {
+    gamma_data.push_back(kine/CLHEP::keV);
+  }
+
+  if (name == "e-") {
+    electron_data.push_back(kine/CLHEP::keV);
+  }
   return true;
 }
 

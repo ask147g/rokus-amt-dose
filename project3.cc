@@ -1,7 +1,6 @@
 #include "G4MTRunManager.hh"
 #include "G4RunManager.hh"
 
-#include <istream>
 #include "G4UImanager.hh"
 #include "G4VisManager.hh"
 #include "G4VisExecutive.hh"
@@ -28,31 +27,35 @@ int main(int argc, char** argv) {
 	physicsList->SetVerboseLevel(0);
   	runManager->SetUserInitialization(physicsList);
 
+	SourceActivity *Activity = new SourceActivity();
+	float Bq = Activity->GetActivity();
+	int particles = Bq/Activity->GetIncreasing();
+
 	SimpleRunAction *run = new SimpleRunAction();
+	run->SetDecreasingActivity(Activity->GetIncreasing());
+	delete Activity;
+	run->SetNumEvents(particles);
 	MyDetectorConstruction *construct = new MyDetectorConstruction(run);
 	MyActionInitialization *action = new MyActionInitialization(construct->GetBiasingHead(), run);
 	runManager->SetUserInitialization(action);
 	runManager->SetUserInitialization(construct);
 	runManager->SetVerboseLevel(0);
 	runManager->Initialize();
+
+	runManager->BeamOn(particles);
 	
 	//G4UIExecutive *ui = new G4UIExecutive(argc,argv);
-
+	//
 	//G4VisManager *visManager = new G4VisExecutive();
 	//visManager->Initialize();
-	
-	G4UImanager *UImanager = G4UImanager::GetUIpointer();
-	
-	UImanager->ApplyCommand("/control/execute vis.mac");
-	//UImanager->ApplyCommand("/control/execute plot.mac");
-	UImanager->ApplyCommand("/run/beamOn 898100");
-
-	SourceActivity *Activity = new SourceActivity();
-	float Bq = Activity->GetActivity();
-	int particles = Bq/pow(10,10);
-	char *text = "/run/beamOn ";
-
+	//
+	//G4UImanager *UImanager = G4UImanager::GetUIpointer();
+	//
+	//UImanager->ApplyCommand("/control/execute vis.mac");
+	////UImanager->ApplyCommand("/control/execute plot.mac");
+	//
 	//ui->SessionStart();
+	delete runManager;
 	
 	return 0;
 }

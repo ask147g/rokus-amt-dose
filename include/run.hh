@@ -1,5 +1,5 @@
-#ifndef RUN.HH
-#define RUN.HH
+#ifndef run_h
+#define run_h 1
 
 #include <fstream>
 #include "math.h"
@@ -8,6 +8,8 @@
 #include "G4Run.hh"
 #include "G4RootAnalysisManager.hh"
 #include "g4root.hh"
+
+#include "setActivity.hh"
 
 class G4Run;
 
@@ -22,9 +24,13 @@ public:
   virtual void   EndOfRunAction(const G4Run*);
 
   void SetVolumeMass(G4double massin) {mass = massin;}
+  void SetDecreasingActivity(double dec) {decreasingActivity = dec;};
+  void SetNumEvents(double num) {numEvents = num;};
 private:
   G4double mass;
   G4double Edep = 0;
+  double decreasingActivity = 1;
+  double numEvents = 0;
 };
 
 #endif

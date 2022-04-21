@@ -32,7 +32,7 @@ std::tm SourceActivity::SetDate(std::string Date) {
     std::vector<std::string> strs;
     strs = split(Date, '.');
     std::tm date;
-    date = {0};
+    date = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     date.tm_mday = std::stoi(strs[0]);
     date.tm_mon = std::stoi(strs[1]);
     date.tm_year = std::stoi(strs[2]);
@@ -44,18 +44,28 @@ void SourceActivity::CalcDeltaTime(std::pair<std::tm, std::tm> date) {
 }
 
 void SourceActivity::GetActivityData() {
-    std::ifstream inActivity("data/sourceData.txt", std::ios_base::in);
-    if (inActivity.is_open()) {
-        std::string act; std::getline(inActivity,act);
-        activity0 = std::stof(act);
-        std::getline(inActivity,act); halfLife = std::stof(act);
-        std::string initDate, lastDate;
-        std::getline(inActivity,initDate);
-        std::getline(inActivity,lastDate);
-        std::tm inDate = SetDate(initDate);
-        std::tm lasDate = SetDate(lastDate);
-        CalcDeltaTime(std::pair<std::tm,std::tm> (inDate, lasDate));
-    }
-    inActivity.close();
+    rapidxml::xml_document<> doc;
+	rapidxml::xml_node<> * root_node;
+
+    std::ifstream theFile ("data/sourceData.xml");
+    std::vector<char> buffer((std::istreambuf_iterator<char>(theFile)), std::istreambuf_iterator<char>());
+    buffer.push_back('\0');
+    doc.parse<0>(&buffer[0]);
+    root_node = doc.first_node("activity0");
+    activity0 = std::stof(root_node->value());
+    root_node = doc.first_node("half-life");
+    halfLife = std::stof(root_node->value());
+    std::string initDate, lastDate;
+    root_node = doc.first_node("date0");
+    initDate = root_node->value();
+    root_node = doc.first_node("date");
+    lastDate = root_node->value();
+    std::tm inDate = SetDate(initDate);
+    std::tm lasDate = SetDate(lastDate);
+    CalcDeltaTime(std::pair<std::tm,std::tm> (inDate, lasDate));
+    root_node = doc.first_node("increasingTimes");
+    decreasingActivity = std::stof(root_node->value());
+
+
     CalculateActivity();
 }

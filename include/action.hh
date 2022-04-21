@@ -1,5 +1,5 @@
-#ifndef ACTION_HH
-#define ACTION_HH
+#ifndef action_h
+#define action_h 1
 
 #include "G4VUserActionInitialization.hh"
 #include "G4Run.hh"

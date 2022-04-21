@@ -1,5 +1,5 @@
-#ifndef GENERATOR_HH
-#define GENERATOR_HH
+#ifndef generator_h
+#define generator_h 1
 
 #include "G4VUserPrimaryGeneratorAction.hh"
 #include "G4ParticleTable.hh"

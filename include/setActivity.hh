@@ -1,5 +1,5 @@
-#ifndef SETACTIVITY_HH
-#define SETACTIVITY_HH
+#ifndef setActivity_h
+#define setActivity_h 1
 
 #include <ctime>
 #include <fstream>
@@ -8,6 +8,8 @@
 #include <vector>
 #include <sstream>
 #include <utility>
+
+#include <rapidxml/rapidxml.hpp>
 
 class SourceActivity {
 private:
@@ -18,10 +20,12 @@ private:
     void Messanger();
     std::tm SetDate(std::string Date);
     void CalcDeltaTime(std::pair<std::tm, std::tm>);
+    double decreasingActivity = 1;
 public:
     SourceActivity();
     ~SourceActivity();
     float GetActivity() {return activity;};
+    double GetIncreasing() {return decreasingActivity;};
 };
 
 #endif

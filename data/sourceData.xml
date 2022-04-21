@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--in Ci-->
+<activity0>8200</activity0>
+<!--in year-->
+<half-life>5.27</half-life>
+<!--date of activity0-->
+<date0>17.02.2011</date0>
+<!--date of experiment-->
+<date>15.05.2020</date>
+<!--times increasing velocity of calculations-->
+<increasingTimes>1000000000</increasingTimes>

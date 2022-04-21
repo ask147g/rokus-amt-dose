@@ -1,5 +1,7 @@
-#ifndef DETECTORRADDECAY.HH
-#define DETECTORRADDECAY.HH
+#ifndef detectorRadDecay_h
+#define detectorRadDecay_h 1
+
+#include <vector>
 
 #include "G4VSensitiveDetector.hh"
 #include "G4RootAnalysisManager.hh"
@@ -18,6 +20,10 @@ public:
   virtual void   Initialize(G4HCofThisEvent* hitCollection);
   virtual G4bool ProcessHits(G4Step* step, G4TouchableHistory* history);
   virtual void   EndOfEvent(G4HCofThisEvent* hitCollection);
+private:
+  std::vector <G4double> gamma_data;
+  std::vector <G4double> electron_data;
+  std::string detector;
 };
 
 #endif
