@@ -3,6 +3,7 @@
 
 #include <utility>
 #include <map>
+#include <fstream>
 
 #include <rapidxml/rapidxml.hpp>
 
@@ -42,6 +43,7 @@ private:
 
 	void ReadSizes();
 	void ReadMaterials();
+	void SetDistance();
 	virtual void ConstructSDandField();
 	// SIZES
 	// world

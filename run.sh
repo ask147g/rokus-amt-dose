@@ -1,7 +1,7 @@
 #!/bin/bash
 cmake ..
-make
+make -j8
 for ((i=0; i<10; i++))
 do
-./project3
+./rocus
 done

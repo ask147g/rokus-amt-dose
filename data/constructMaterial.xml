@@ -14,7 +14,7 @@
     </material>
 </uran>
 
-<steel12 ro="18.9">
+<steel12 ro="7.92">
     <material>
         <name>C</name>
         <perCent>0.12</perCent>
@@ -53,7 +53,7 @@
     </material>
 </steel12>
 
-<steel02 ro="18.9">
+<steel02 ro="8">
     <material>
         <name>C</name>
         <perCent>0.02</perCent>

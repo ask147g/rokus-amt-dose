@@ -3,6 +3,7 @@
 MyDetectorConstruction::MyDetectorConstruction(SimpleRunAction *arun): G4VUserDetectorConstruction(), run(arun) {
 	ReadSizes();
 	ReadMaterials();
+	SetDistance();
 }
 
 
@@ -360,4 +361,17 @@ void MyDetectorConstruction::ConstructSDandField() {
 		sdRadDecay2->SetFilter(Filter);
 		SDman->AddNewDetector(sdRadDecay2);
 	}
+}
+
+void MyDetectorConstruction::SetDistance() {
+	std::ifstream dist;
+	dist.open("distance_macro/distance.txt", std::ios::in);
+	if (dist) {
+		while (1) {
+			if (dist.eof()) break;
+			dist >> placement_container;
+		}
+		placement_container *= CLHEP::cm;
+	}
+
 }

@@ -9,13 +9,13 @@
     <biasingHead>500</biasingHead>
     <!--mm-->
     <frame>
-        <sphere>420</sphere>
+        <sphere>588</sphere>
         <cons>
             <!--cm-->
             <edge>24</edge>
             <biasEdge>75</biasEdge>
             <!--mm-->
-            <biasing>225</biasing>
+            <biasing>315</biasing>
         </cons>
     </frame>
 
@@ -33,7 +33,7 @@
     <!--cm-->
     <edge>4</edge>
     <!--cm-->
-    <placement>0</placement>
+    <placement>70</placement>
 </container>
 
 <fantom placed="true" sensitive="true">

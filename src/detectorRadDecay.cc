@@ -3,7 +3,7 @@
 DetectorRadDecay::DetectorRadDecay(G4String name) : G4VSensitiveDetector(name), detector(name) {}
 
 DetectorRadDecay::~DetectorRadDecay() {
-  std::pair<std::string, std::string> output = std::make_pair(detector+"_gamma.txt", detector+"_electron.txt");
+  std::pair<std::string, std::string> output = std::make_pair(detector+"_gamma.csv", detector+"_electron.csv");
   std::ofstream gamma_out(output.first, std::ios_base::out | std::ios_base::trunc);
     if (gamma_out.is_open()) {
       for (std::vector<G4double>::iterator i = gamma_data.begin(); i != gamma_data.end(); ++i)

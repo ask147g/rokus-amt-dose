@@ -1,5 +1,5 @@
 #!/bin/bash
 cmake ..
 make
-./project3
+./rocus
 root spectrum.cc

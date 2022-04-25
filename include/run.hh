@@ -26,11 +26,13 @@ public:
   void SetVolumeMass(G4double massin) {mass = massin;}
   void SetDecreasingActivity(double dec) {decreasingActivity = dec;};
   void SetNumEvents(double num) {numEvents = num;};
+  void SetDistance();
 private:
   G4double mass;
   G4double Edep = 0;
   double decreasingActivity = 1;
   double numEvents = 0;
+  G4double placement_container = 0;
 };
 
 #endif
