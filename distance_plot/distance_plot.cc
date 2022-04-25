@@ -1,59 +1,134 @@
 #include <iostream>
 #include <fstream>
+#include <cmath>
+#include <map>
 
 void distance_plot()
 {
-	std::ifstream model;
-	model.open("model1.txt", std::ios::in);
+	std::vector<float> exp_data = {4.38224094, 0.506902748, 0.185518641, 0.100267959, 0.060958821, 0.040324669, 0.028542712, 0.021523865, 0.016913534, 0.013201903, 0.010712504, 0.00952622, 0.008654481, 0.007468197, 0.00674025};
+	std::vector<int> exp_dist = {0, 70, 140, 210, 280, 350, 420, 490, 560, 630, 700, 770, 840, 910, 980};
+	std::vector<float> exp_mist = {0.0133973736787141, 0.00161481160892966, 0.000831052142980693, 0.000311694762051112, 0.000197734423945098, 0.000103487168332118, 6.79692935581946E-05, 6.48061786251899E-05, 6.73725366733366E-05, 3.97871450647065E-05, 2.98065069909239E-05, 3.88629304131845E-05, 2.49379129299148E-05, 2.29124441843292E-05, 2.30880210368927E-05};
 	
-	gStyle->SetOptFit();
-   	auto c1 = new TCanvas("c1","result",700,500);
+	const int amount_models = 6;
+	const int mult_amount = 10;
+	std::vector<std::map<int, std::vector<float> > > all_models_data;
+
+	auto c1 = new TCanvas("c1","result",700,500);
    	c1->SetGrid();
-   	
-   	auto mg = new TMultiGraph();
-   	mg->SetTitle("Dependence neutrons from material");
-   		
-	auto gr1 = new TGraph();
-   	gr1 -> SetLineWidth(1);
-   	gr1 -> SetMarkerStyle(20);
-   	gr1 -> SetMarkerSize(1);
-   	gr1 -> SetMarkerColor(1);
-   	gr1->SetLineColor(1);
-   	
+	gStyle->SetOptFit();
 
-	if (model)
-	{
-		const int count = 150;
-		int i = 0;
-		float dose_all[count];
-		float model_amount[count];
-		while (1)
-		{
-			model >> dose_all[i] >> model_amount[i];
-			if (model.eof()) break;
-			gr1->SetPoint(gr1->GetN(), model_amount[i], dose_all[i]);
-			i++;
-		}
-		model.close();
-		
+	auto mg = new TMultiGraph();
+	TGraphErrors *gr;
 
-		mg->Add(gr1);
-		
-		mg->GetXaxis()->SetTitle("Material");
-		mg->GetYaxis()->SetTitle("Amount, particle");
-		
-		mg->Draw("APL");
-		
+	gr = new TGraphErrors();
+	gr->SetFillColor(1);
+	gr->SetFillStyle(3002);
+   	gr->SetMarkerStyle(19+1);
+   	gr->SetMarkerSize(1);
+   	gr->SetMarkerColor(1);
+   	gr->SetLineColor(1);
+
+	std::vector<float>::iterator it_dose1 = exp_data.begin();
+	std::vector<float>::iterator it_sko1 = exp_mist.begin();			
+	for (std::vector<int>::iterator it_distance = exp_dist.begin(); it_distance != exp_dist.end(); ++it_distance) {
+		int point = gr->GetN();
+		if (*it_dose1 == 0) continue;
+		gr->SetPoint(point, (*it_distance), std::log((*it_dose1)*1000));
+		gr->SetPointError(point, 0, (*it_sko1)/((*it_dose1)));
+		++it_dose1;
+		++it_sko1;
+	}
+	mg->Add(gr);
+
+	std::ifstream model;
+	for (int i = 1; i < amount_models+1; i++) {
+		std::map<int, std::vector<float> > input_data;
+
+		gr = new TGraphErrors();
+		gr->SetFillColor(i+1);
+		gr->SetFillStyle(3002);
+   		gr->SetMarkerStyle(19+i+1);
+   		gr->SetMarkerSize(1);
+   		gr->SetMarkerColor(i+1);
+   		gr->SetLineColor(i+1);
+
+		std::string name = "model" + std::to_string(i) + ".csv";
+		model.open(name, std::ios::in);
 		auto leg = new TLegend(0.1,0.15,0.5,0.55);
    		leg->SetHeader("Legend");
-   		leg->AddEntry(gr1,"QBBC","lp");
-   		leg->Draw();
-		
 
+
+		if (model) {
+			std::vector<float> mean_dose_dist;
+			while (1) {
+				std::vector<float> dose_all_dist;
+				int distance;
+				float mean = 0;
+				for (int sko_i = 0; sko_i < mult_amount; sko_i++) {
+					int distan;
+					float dose;
+					model >> dose >> distan;
+					mean += dose;
+					dose_all_dist.push_back(dose);
+					distance = distan;
+				}
+				input_data.insert({distance, dose_all_dist});
+				all_models_data.push_back(input_data);
+				mean_dose_dist.push_back(mean/(mult_amount+0.));
+				if (model.eof()) break;
+			}
+			model.close();
+
+			std::vector<float>::iterator mean_it = mean_dose_dist.begin();
+			std::vector<int> distance;
+			std::vector<float> sko;
+			int amount = 0;
+			for (std::map<int, std::vector<float> >::iterator it = input_data.begin(); it != input_data.end(); it++) {
+				float sko_step = 0;
+				for (std::vector<float>::iterator sko_i = (it->second).begin(); sko_i < (it->second).end(); sko_i++) {
+					sko_step += std::pow((*mean_it - *sko_i), 2);
+				}
+				distance.push_back(it->first);
+				sko.push_back(std::sqrt(sko_step/(mult_amount*(mult_amount-1))));
+				++mean_it;
+				++amount;
+			}
+
+			std::vector<float>::iterator it_dose = mean_dose_dist.begin();
+			std::vector<float>::iterator it_sko = sko.begin();			
+			for (std::vector<int>::iterator it_distance = distance.begin(); it_distance != distance.end(); ++it_distance) {
+				int point = gr->GetN();
+				if (*it_dose == 0) continue;
+				gr->SetPoint(point, (*it_distance), std::log((*it_dose)*1000));
+				gr->SetPointError(point, 0, (*it_sko)/((*it_dose)));
+				++it_dose;
+				++it_sko;
+			}
+			mg->Add(gr);
+		}
+
+		//gr = new TGraphErrors();
+		//gr->SetFillColor(i+1);
+		//gr->SetFillStyle(3001);
+		////gr->SetLineWidth(1);
+   		//gr->SetMarkerStyle(19+i+1);
+   		//gr->SetMarkerSize(1);
+   		//gr->SetMarkerColor(i+1);
+   		//gr->SetLineColor(i+1);
+//
+		//std::vector<float>::iterator it_dose = exp_data.begin();
+		//for (std::vector<int>::iterator it_distance = distance.begin(); it_distance != distance.end(); ++it_distance) {
+		//	int point = gr->GetN();
+		//	gr->SetPoint(point, (*it_distance), std::log((*it_dose)*1000));
+		//	//gr->SetPointError(point, 0, (*it_sko)/((*it_dose)));
+		//	++it_dose;
+		//}
+		//mg->Add(gr);
+
+		mg->Draw("apl3");
+		mg->GetXaxis()->SetTitle("r, cm");
+		mg->GetYaxis()->SetTitle("ln(D), mrad/sec");
+		//leg->Draw();
 	}
-	else
-	{
-		std::cout << "Data not found" << std::endl;
-	}
-	
+   		
 }

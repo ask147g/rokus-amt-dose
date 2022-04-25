@@ -36,6 +36,8 @@
 #include "G4PenelopeIonisationModel.hh"
 #include "G4PenelopeBremsstrahlungModel.hh"
 
+#include "G4LivermoreComptonModel.hh"
+
 class MyPhysicsList : public G4VUserPhysicsList {
 public:
 	MyPhysicsList();

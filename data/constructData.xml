@@ -33,7 +33,7 @@
     <!--cm-->
     <edge>4</edge>
     <!--cm-->
-    <placement>70</placement>
+    <placement>0</placement>
 </container>
 
 <fantom placed="true" sensitive="true">

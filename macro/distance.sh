@@ -8,7 +8,7 @@ cmake ..
 make -j8
 for ((j=0; j<10; j++))
 do
-echo "1" | ./rocus
+echo "2" | ./rocus
 done
 cd macro
 rm -r distance.txt

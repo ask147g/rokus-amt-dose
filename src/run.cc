@@ -3,7 +3,9 @@
 SimpleRunAction::SimpleRunAction() : G4UserRunAction() {
   TypeCalculations types = TypeCalculations();
 	int typeCalc = types.GetTypeCalc();
-	if ((typeCalc) == 1) SetDistance();
+  if (typeCalc == 0) SetDistanceType0();
+  if (typeCalc == 1) SetDistanceType0();
+	if ((typeCalc) == 2) SetDistance();
 }
 
 SimpleRunAction::~SimpleRunAction() {}
@@ -17,7 +19,7 @@ void SimpleRunAction::EndOfRunAction(const G4Run* run) {
 
   std::ofstream out("result.csv", std::ios_base::app);
   if (out.is_open())
-    out << 100*Edep*decreasingActivity/(mass+0.) << " rad/sec " << placement_container << " cm " << nofEvents << std::endl;  // 100 from Sv to rad
+    out << 100*Edep*decreasingActivity/(mass+0.) << " " << placement_container << std::endl;  // 100 from Sv to rad
   out.close();
 }
 
@@ -25,7 +27,7 @@ void SimpleRunAction::GetValue(G4double edep) {Edep += edep;}
 
 void SimpleRunAction::SetDistance() {
   std::ifstream dist;
-	dist.open("distance_macro/distance.txt", std::ios::in);
+	dist.open("macro/distance.txt", std::ios::in);
 	if (dist) {
 		while (1) {
 			if (dist.eof()) break;

@@ -33,8 +33,8 @@ void MyPhysicsList::ConstructProcess() {
 	G4PhysicsListHelper* ph = G4PhysicsListHelper::GetPhysicsListHelper();  
 
 	G4RadioactiveDecay* radioactiveDecay = new G4RadioactiveDecay();	
-	radioactiveDecay->SetICM(true);                //Internal Conversion
-	radioactiveDecay->SetARM(true);               //Atomic Rearangement
+	radioactiveDecay->SetICM(true);				//Internal Conversion
+	radioactiveDecay->SetARM(true);				//Atomic Rearangement
 	ph->RegisterProcess(radioactiveDecay, G4GenericIon::GenericIon());
 	
 	// Deexcitation (in case of Atomic Rearangement)

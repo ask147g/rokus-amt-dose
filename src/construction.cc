@@ -5,7 +5,7 @@ MyDetectorConstruction::MyDetectorConstruction(SimpleRunAction *arun): G4VUserDe
 	ReadMaterials();
 	TypeCalculations types = TypeCalculations();
 	int typeCalc = types.GetTypeCalc();
-	if ((typeCalc) == 1) SetDistance();
+	if ((typeCalc) == 2) SetDistance();
 }
 
 
@@ -367,7 +367,7 @@ void MyDetectorConstruction::ConstructSDandField() {
 
 void MyDetectorConstruction::SetDistance() {
 	std::ifstream dist;
-	dist.open("distance_macro/distance.txt", std::ios::in);
+	dist.open("macro/distance.txt", std::ios::in);
 	if (dist) {
 		while (1) {
 			if (dist.eof()) break;

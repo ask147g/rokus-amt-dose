@@ -24,8 +24,11 @@ file(COPY ${root} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 file(GLOB script "*.sh") 
 file(COPY ${script} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
-file(GLOB script "distance_macro/distance.sh") 
+file(GLOB script "macro/distance.sh") 
 file(COPY ${script} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/macro)
+
+file(GLOB data "macro/*.csv") 
+file(COPY ${fata} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/macro)
 
 file(COPY ${MACRO_FILES} DESTINATION ${PROJECT_BINARY_DIR})
 
