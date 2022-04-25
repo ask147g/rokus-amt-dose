@@ -11,6 +11,18 @@
 #include "physics.hh"
 #include "run.hh"
 #include "setActivity.hh"
+#include "typeCalc.hh"
+
+int TypeCalculations::typeCalc = 0;
+
+int SetTypeCalculations() {
+	TypeCalculations types = TypeCalculations();
+	types.TypeMessenger();
+	int t;
+	std::cin >> t;
+	TypeCalculations::SetType(t);
+	return types.GetTypeCalc();
+}
 
 int main(int argc, char** argv) {
 	CLHEP::HepRandom::setTheEngine(new CLHEP::MTwistEngine);
@@ -22,7 +34,9 @@ int main(int argc, char** argv) {
 	#else
 		G4RunManager *runManager = new G4RunManager();
 	#endif
-	
+
+	int ttype = SetTypeCalculations();
+
 	G4VUserPhysicsList *physicsList = new MyPhysicsList();
 	physicsList->SetVerboseLevel(0);
   	runManager->SetUserInitialization(physicsList);

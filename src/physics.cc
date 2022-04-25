@@ -50,7 +50,7 @@ void MyPhysicsList::ConstructProcess() {
 	ph->RegisterProcess(photoeff, G4Gamma::Gamma());
 	G4ComptonScattering* compton = new G4ComptonScattering();
 	compton->SetEmModel(new G4PenelopeComptonModel());
-	//ph->RegisterProcess(compton, G4Gamma::Gamma());
+	ph->RegisterProcess(compton, G4Gamma::Gamma());
 	G4GammaConversion *gam_conv = new G4GammaConversion();
 	gam_conv->SetEmModel(new G4PenelopeGammaConversionModel());
 	ph->RegisterProcess(gam_conv, G4Gamma::Gamma());

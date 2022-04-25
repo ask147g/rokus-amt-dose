@@ -3,7 +3,9 @@
 MyDetectorConstruction::MyDetectorConstruction(SimpleRunAction *arun): G4VUserDetectorConstruction(), run(arun) {
 	ReadSizes();
 	ReadMaterials();
-	SetDistance();
+	TypeCalculations types = TypeCalculations();
+	int typeCalc = types.GetTypeCalc();
+	if ((typeCalc) == 1) SetDistance();
 }
 
 
@@ -373,5 +375,4 @@ void MyDetectorConstruction::SetDistance() {
 		}
 		placement_container *= CLHEP::cm;
 	}
-
 }

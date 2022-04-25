@@ -1,6 +1,10 @@
 #include "run.hh"
 
-SimpleRunAction::SimpleRunAction() : G4UserRunAction() {SetDistance();}
+SimpleRunAction::SimpleRunAction() : G4UserRunAction() {
+  TypeCalculations types = TypeCalculations();
+	int typeCalc = types.GetTypeCalc();
+	if ((typeCalc) == 1) SetDistance();
+}
 
 SimpleRunAction::~SimpleRunAction() {}
 
@@ -9,7 +13,7 @@ void SimpleRunAction::BeginOfRunAction(const G4Run* aRun) {}
 void SimpleRunAction::EndOfRunAction(const G4Run* run) {
   G4int nofEvents = run->GetNumberOfEvent();
   if (nofEvents != numEvents) return;
-  G4cout << 100*Edep*decreasingActivity/(mass+0.) << " rad/sec " << nofEvents << G4endl;  // 100 from Sv to rad
+  G4cout << 100*Edep*decreasingActivity/(mass+0.) << " rad/sec " << placement_container << " cm " << nofEvents << G4endl;  // 100 from Sv to rad
 
   std::ofstream out("result.csv", std::ios_base::app);
   if (out.is_open())
@@ -28,4 +32,16 @@ void SimpleRunAction::SetDistance() {
 			dist >> placement_container;
 		}
 	}
+}
+
+void SimpleRunAction::SetDistanceType0() {
+  rapidxml::xml_document<> doc;
+	rapidxml::xml_node<> *root_node;
+
+  std::ifstream theFile ("data/constructData.xml");
+  std::vector<char> buffer((std::istreambuf_iterator<char>(theFile)), std::istreambuf_iterator<char>());
+  buffer.push_back('\0');
+  doc.parse<0>(&buffer[0]);
+  root_node = doc.first_node("container");
+  placement_container = std::stof(root_node->first_node("placement")->value());
 }

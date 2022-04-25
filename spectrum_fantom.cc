@@ -45,4 +45,6 @@ void spectrum_fantom()
 	c1->cd(2);
 	c1->cd(2)->SetGrid();
 	electron_spectrum->Draw();
+
+	c1->SaveAs("fantom_model1.png");
 }

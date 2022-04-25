@@ -24,6 +24,7 @@
 
 #include "detector.hh"
 #include "detectorRadDecay.hh"
+#include "typeCalc.hh"
 
 class MyDetectorConstruction : public G4VUserDetectorConstruction {
 public:
