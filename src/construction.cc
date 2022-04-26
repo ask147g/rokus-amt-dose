@@ -291,7 +291,7 @@ void MyDetectorConstruction::BuildContainer(G4LogicalVolume *logicWorld) {
 	AlWorld = new G4SubtractionSolid("AlWorld", AlWorld, PbWorld, 0, G4ThreeVector(0,0,0));
 	PbWorld = new G4SubtractionSolid("PbWorld", PbWorld, fantomWorld, 0, G4ThreeVector(0,0,0));
 
-	G4LogicalVolume *PbLogic = new G4LogicalVolume(PbWorld, PbMat, "PbLogic");
+	G4LogicalVolume *PbLogic = new G4LogicalVolume(PbWorld, AlMat, "PbLogic");
 
 	new G4PVPlacement(0,
 					G4ThreeVector(0, 0, -(containerPlacememnt+edge_container/2)), 
@@ -302,7 +302,7 @@ void MyDetectorConstruction::BuildContainer(G4LogicalVolume *logicWorld) {
 					0, 
 					false);
 
-	G4LogicalVolume *AlLogic = new G4LogicalVolume(AlWorld, AlMat, "AlLogic");
+	G4LogicalVolume *AlLogic = new G4LogicalVolume(AlWorld, PbMat, "AlLogic");
 
 	new G4PVPlacement(0,
 					G4ThreeVector(0, 0, -(containerPlacememnt+edge_container/2)), 

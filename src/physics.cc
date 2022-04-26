@@ -6,25 +6,24 @@ MyPhysicsList::~MyPhysicsList() {}
 
 void MyPhysicsList::ConstructParticle() {
 	// pseudo-particles
-  G4Geantino::GeantinoDefinition();
-  
-  // gamma
-  G4Gamma::GammaDefinition();
+	G4Geantino::GeantinoDefinition();
 
-  // leptons
-  G4Electron::ElectronDefinition();
-  G4Positron::PositronDefinition();
+	// gamma
+	G4Gamma::GammaDefinition();
 
-  G4NeutrinoE::NeutrinoEDefinition();
-  G4AntiNeutrinoE::AntiNeutrinoEDefinition();
-  
-  // baryons
-  G4Proton::ProtonDefinition();
-  G4Neutron::NeutronDefinition();  
+	// leptons
+	G4Electron::ElectronDefinition();
+	G4Positron::PositronDefinition();
+	G4NeutrinoE::NeutrinoEDefinition();
+	G4AntiNeutrinoE::AntiNeutrinoEDefinition();
 
-  // ions
-  G4IonConstructor iConstructor;
-  iConstructor.ConstructParticle();  
+	// baryons
+	G4Proton::ProtonDefinition();
+	G4Neutron::NeutronDefinition(); 
+
+	// ions
+	G4IonConstructor iConstructor;
+	iConstructor.ConstructParticle();  
 }
 
 void MyPhysicsList::ConstructProcess() {
@@ -73,7 +72,7 @@ void MyPhysicsList::ConstructProcess() {
 
 	G4eMultipleScattering* msc = new G4eMultipleScattering();
 	msc->SetEmModel(new G4GoudsmitSaundersonMscModel);
-	ph->RegisterProcess(msc, G4Electron::Electron());
+	//ph->RegisterProcess(msc, G4Electron::Electron());
 
 }
 

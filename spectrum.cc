@@ -46,5 +46,5 @@ void spectrum()
 	c1->cd(2)->SetGrid();
 	electron_spectrum->Draw();
 
-	c1->SaveAs("source_model5.png");
+	c1->SaveAs("source_model7.png");
 }
