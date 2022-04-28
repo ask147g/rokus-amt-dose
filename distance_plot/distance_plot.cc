@@ -2,6 +2,8 @@
 #include <fstream>
 #include <cmath>
 #include <map>
+#include <vector>
+#include <sstream>
 
 void distance_plot()
 {
@@ -9,8 +11,8 @@ void distance_plot()
 	std::vector<int> exp_dist = {0, 70, 140, 210, 280, 350, 420, 490, 560, 630, 700, 770, 840, 910, 980};
 	std::vector<float> exp_mist = {0.0133973736787141, 0.00161481160892966, 0.000831052142980693, 0.000311694762051112, 0.000197734423945098, 0.000103487168332118, 6.79692935581946E-05, 6.48061786251899E-05, 6.73725366733366E-05, 3.97871450647065E-05, 2.98065069909239E-05, 3.88629304131845E-05, 2.49379129299148E-05, 2.29124441843292E-05, 2.30880210368927E-05};
 	
-	const int amount_models = 11;
-	const int first_model = 11;
+	const int amount_models = 15;
+	const int first_model = 15;
 	const int mult_amount = 10;
 	std::vector<std::map<int, std::vector<float> > > all_models_data;
 
@@ -101,6 +103,7 @@ void distance_plot()
 			std::vector<int> distance;
 			std::vector<float> sko;
 			std::vector<float> mis;
+			std::vector<int>::iterator it_exp_dist = exp_dist.begin();
 			int amount = 0;
 			for (std::map<int, std::vector<float> >::iterator it = input_data.begin(); it != input_data.end(); it++) {
 				float sko_step = 0;
@@ -109,23 +112,31 @@ void distance_plot()
 				}
 				distance.push_back(it->first);
 				sko.push_back(std::sqrt(sko_step/(mult_amount*(mult_amount-1))));
-				mis.push_back(std::abs(*mean_it - *exp_it)/(*exp_it)*100);
-				mist_sko.push_back(1./(*mean_it)*std::sqrt(std::pow(std::sqrt(sko_step/(mult_amount*(mult_amount-1))), 2)+std::pow((*mean_it)*(*it_Dexp_sko)/(*exp_it), 2)));
+				if (it->first == *it_exp_dist) {
+					mis.push_back(std::abs(*mean_it - *exp_it)/(*exp_it)*100);
+					mist_sko.push_back(1./(*mean_it)*std::sqrt(std::pow(std::sqrt(sko_step/(mult_amount*(mult_amount-1))), 2)+std::pow((*mean_it)*(*it_Dexp_sko)/(*exp_it), 2)));
+					++it_exp_dist;
+				}
 				++mean_it;
 				++amount;
 				++exp_it;
 				++it_Dexp_sko;
 			}
 
+			it_exp_dist = exp_dist.begin();
 			std::vector<float>::iterator it_dose = mean_dose_dist.begin();
 			std::vector<float>::iterator it_sko = sko.begin();
 			std::vector<float>::iterator it_mis = mis.begin();
 			std::vector<float>::iterator it_mis_sko = mist_sko.begin();
 			for (std::vector<int>::iterator it_distance = distance.begin(); it_distance != distance.end(); ++it_distance) {
 				int point = gr->GetN();
-				gr_err->SetPoint(gr_err->GetN(), (*it_distance), (*it_mis));
+				if (*it_distance == *it_exp_dist)
+					gr_err->SetPoint(gr_err->GetN(), (*it_distance), (*it_mis));
 				if (*it_dose == 0) continue;
-				gr_err->SetPointError(point, 0, (*it_mis_sko)*100);
+				if (*it_distance == *it_exp_dist) {
+					gr_err->SetPointError(point, 0, (*it_mis_sko)*100);
+					++it_exp_dist;
+				}
 				gr->SetPoint(point, (*it_distance), std::log((*it_dose)*1000));
 				gr->SetPointError(point, 0, (*it_sko)/((*it_dose)));
 				++it_dose;

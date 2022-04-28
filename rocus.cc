@@ -44,7 +44,7 @@ int main(int argc, char** argv) {
 	SourceActivity *Activity = new SourceActivity();
 	float Bq = Activity->GetActivity();
 	int particles = Bq/Activity->GetIncreasing();
-
+	
 	SimpleRunAction *run = new SimpleRunAction();
 	run->SetDecreasingActivity(Activity->GetIncreasing());
 	delete Activity;

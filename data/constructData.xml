@@ -9,17 +9,17 @@
     <biasingHead>500</biasingHead>
     <!--mm-->
     <frame>
-        <sphere>588</sphere>
+        <sphere>609</sphere>
         <cons>
             <!--cm-->
             <edge>24</edge>
             <biasEdge>75</biasEdge>
             <!--mm-->
-            <biasing>315</biasing>
+            <biasing>326.25</biasing>
         </cons>
     </frame>
 
-    <source sensitive="true">
+    <source sensitive="true" cap1="false" cap2="false">
         <source_active_diameter>21</source_active_diameter>
         <source_active_height>24.5</source_active_height>
         <source_diameter>23</source_diameter>
@@ -33,12 +33,12 @@
     <!--cm-->
     <edge>4</edge>
     <!--cm-->
-    <placement>0</placement>
+    <placement>70</placement>
 </container>
 
 <fantom placed="true" sensitive="true">
     <!--cm-->
-    <sizeA>4</sizeA>
-    <sizeB>4</sizeB>
-    <sizeC>4</sizeC>
+    <sizeA>3.6</sizeA>
+    <sizeB>3.6</sizeB>
+    <sizeC>3.6</sizeC>
 </fantom>

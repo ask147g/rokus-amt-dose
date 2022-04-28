@@ -3,25 +3,35 @@
 MyDetectorConstruction::MyDetectorConstruction(SimpleRunAction *arun): G4VUserDetectorConstruction(), run(arun) {
 	ReadSizes();
 	ReadMaterials();
-	TypeCalculations types = TypeCalculations();
-	int typeCalc = types.GetTypeCalc();
-	if ((typeCalc) == 2) SetDistance();
+	if ((TypeCalculations::GetTypeCalc()) == 2) SetDistance();
+	diameter_half = (source_diameter - source_active_diameter)/4.;
+	height_cap = (source_height-source_active_height-2*diameter_half)/4.;
+	containerPlacement = -biasingHead+Rsphere/2.+edge_container/2.+placement_container;
+	BuildMaterials();
 }
 
 
-MyDetectorConstruction::~MyDetectorConstruction() {}
+MyDetectorConstruction::~MyDetectorConstruction() {
+	delete run, SDman;
+}
 
 
 G4VPhysicalVolume *MyDetectorConstruction::Construct() {
 	std::pair<G4LogicalVolume*, G4VPhysicalVolume*> world;
 	world = BuildWorld();
 	
-	if (containerPlaced)
-		BuildContainer(world.first);
-	if (fantomPlaced)
-		BuildWaterFantom(world.first);
 	if (radioactiveheadPlaced)
 		BuildRadioaciveHead(world.first);
+	if (diaphragmPlaced)
+		BuildDiaphragm(world.first);
+
+	// only 1 container
+	if ((TypeCalculations::GetTypeCalc()) >= 0 && TypeCalculations::GetTypeCalc() <= 2) {
+		if (containerPlaced)
+			BuildContainer(world.first);
+		if (fantomPlaced)
+			BuildFantom(world.first);
+	}
 	
 	return world.second;
 }
@@ -54,6 +64,8 @@ void MyDetectorConstruction::ReadSizes() {
 
 		// source
 		sourceSens = root_node->first_node("source")->first_attribute("sensitive")->value();
+		isCap1 = root_node->first_node("source")->first_attribute("cap1")->value();
+		isCap2 = root_node->first_node("source")->first_attribute("cap2")->value();
 		source_active_diameter = std::stof(root_node->first_node("source")->first_node("source_active_diameter")->value()); source_active_diameter *= CLHEP::mm;
 		source_active_height = std::stof(root_node->first_node("source")->first_node("source_active_height")->value()); source_active_height *= CLHEP::mm;
 		source_diameter = std::stof(root_node->first_node("source")->first_node("source_diameter")->value()); source_diameter *= CLHEP::mm;
@@ -125,6 +137,34 @@ void MyDetectorConstruction::ReadMaterials() {
 }
 
 
+void MyDetectorConstruction::BuildMaterials() {
+	G4NistManager *nist = G4NistManager::Instance();
+	// Uran
+	Uran = new G4Material("Uran", ro_uran, 1);
+	G4Element* elU = new G4Element("Uranium", "U", Z_uran.size());
+	for (int i = 0; i < Z_uran.size(); i++) {
+		std::string name = "U" + std::to_string(A_uran[i]);
+		elU->AddIsotope(new G4Isotope(name, Z_uran[i], A_uran[i], mass_uran[i]*CLHEP::g/CLHEP::mole), perCent_uran[i]*CLHEP::perCent);
+	}
+	Uran->AddElement(elU, 100.*CLHEP::perCent);
+
+	// steels
+	steel12 = new G4Material("steel12", ro_steel12, mat_steel12.size());
+	std::map<std::string, G4double>::iterator it = mat_steel12.begin();
+	while (it != mat_steel12.end()) {
+		steel12->AddElement(nist->FindOrBuildElement(it->first), (it->second)*CLHEP::perCent);
+		++it;
+	}
+	
+	steel02 = new G4Material("steel02", ro_steel02, mat_steel02.size());
+	it = mat_steel02.begin();
+	while (it != mat_steel02.end()) {
+		steel02->AddElement(nist->FindOrBuildElement(it->first), (it->second)*CLHEP::perCent);
+		++it;
+	}
+}
+
+
 std::pair<G4LogicalVolume*, G4VPhysicalVolume*> MyDetectorConstruction::BuildWorld() {
 	G4NistManager *nist = G4NistManager::Instance();
 	G4Material *worldMat = nist->FindOrBuildMaterial("G4_AIR");
@@ -151,43 +191,17 @@ void MyDetectorConstruction::BuildRadioaciveHead(G4LogicalVolume *logicWorld) {
 	G4Material *galacyMat = nist->FindOrBuildMaterial("G4_Galactic");
 	G4Material *CoMat = nist->FindOrBuildMaterial("G4_Co");
 
-	G4Material* Uran = new G4Material("Uran", ro_uran, 1);
-	G4Element* elU = new G4Element("Uranium", "U", Z_uran.size());
-	for (int i = 0; i < Z_uran.size(); i++) {
-		std::string name = "U" + std::to_string(A_uran[i]);
-		elU->AddIsotope(new G4Isotope(name, Z_uran[i], A_uran[i], mass_uran[i]*CLHEP::g/CLHEP::mole), perCent_uran[i]*CLHEP::perCent);
-	}
-	Uran -> AddElement(elU, 100.*CLHEP::perCent);
-
-	G4Material *steel12 = new G4Material("steel12", ro_steel12, mat_steel12.size());
-	std::map<std::string, G4double>::iterator it = mat_steel12.begin();
-	while (it != mat_steel12.end()) {
-		steel12->AddElement(nist->FindOrBuildElement(it->first), (it->second)*CLHEP::perCent);
-		++it;
-	}
-	
-	G4Material *steel02 = new G4Material("steel02", ro_steel02, mat_steel02.size());
-	it = mat_steel02.begin();
-	while (it != mat_steel02.end()) {
-		steel02->AddElement(nist->FindOrBuildElement(it->first), (it->second)*CLHEP::perCent);
-		++it;
-	}
-	
-
-	G4double diameter_half = (source_diameter - source_active_diameter)/4.;
-	G4double height_up = (source_height-source_active_height-2*diameter_half)/4.;
-
 	G4VSolid *innerTubSolid = new G4Tubs("innerTubSolid",
 									0,
-									(source_active_diameter/2.)+diameter_half,
-									(source_active_height+diameter_half+height_up)/2.,
+									(source_active_diameter+2*diameter_half)/2.,
+									(source_active_height+diameter_half+2*height_cap)/2.,
 									0,
 									360);
 
 	G4VSolid *outerTubSolid = new G4Tubs("outerTubSolid",
 									0,
-									(source_active_diameter/2.)+2*diameter_half,
-									(source_active_height+2*diameter_half+2*height_up)/2.,
+									(source_active_diameter+4*diameter_half)/2.,
+									(source_active_height+2*diameter_half+4*height_cap)/2.,
 									0,
 									360);
 
@@ -199,15 +213,32 @@ void MyDetectorConstruction::BuildRadioaciveHead(G4LogicalVolume *logicWorld) {
 									0,
 									360);
 	
-	outerTubSolid = new G4SubtractionSolid("outerTubSolid", outerTubSolid, innerTubSolid, 0, G4ThreeVector(0,0,diameter_half));
-	innerTubSolid = new G4SubtractionSolid("innerTubSolid", innerTubSolid, sourceSolid, 0, G4ThreeVector(0,0,diameter_half));
+	outerTubSolid = new G4SubtractionSolid("outerTubSolid", outerTubSolid, innerTubSolid, 0, G4ThreeVector(0,0,(source_active_height+2*height_cap+diameter_half)/2.-source_active_height/2.-diameter_half));
+	innerTubSolid = new G4SubtractionSolid("innerTubSolid", innerTubSolid, sourceSolid, 0, G4ThreeVector(0,0,(source_active_height+2*height_cap+diameter_half)/2.-source_active_height/2.-diameter_half));
 	
+	G4VSolid *deleteTubSolid = new G4Tubs("deleteTubSolid",
+									0,
+									source_active_diameter/2.,
+									source_active_height/2.,
+									0,
+									360);
+
+	innerTubSolid = new G4SubtractionSolid("innerTubSolid", innerTubSolid, deleteTubSolid, 0, G4ThreeVector(0,0,-4*height_cap));
+	
+	deleteTubSolid = new G4Tubs("deleteTubSolid",
+									0,
+									(source_active_diameter+2*diameter_half)/2.,
+									(source_active_height+diameter_half+2*height_cap)/2.,
+									0,
+									360);
+
+	outerTubSolid = new G4SubtractionSolid("outerTubSolid", outerTubSolid, deleteTubSolid, 0, G4ThreeVector(0,0,-4*height_cap));
 
 	G4LogicalVolume *innerTubLogic = new G4LogicalVolume(innerTubSolid, steel12, "innerTubLogic");
 	G4LogicalVolume *outerTubLogic = new G4LogicalVolume(outerTubSolid, steel02, "outerTubLogic");
-	
+
 	new G4PVPlacement(0,
-					G4ThreeVector(0, 0, biasingHead+source_active_height/2.-diameter_half),
+					G4ThreeVector(0, 0, biasingHead+source_active_height/2.-((source_active_height+2*height_cap+diameter_half)/2.-source_active_height/2.-diameter_half)),
 					innerTubLogic,
 					"innerTubPhys",
 					logicWorld,
@@ -216,7 +247,7 @@ void MyDetectorConstruction::BuildRadioaciveHead(G4LogicalVolume *logicWorld) {
 					false);
 
 	new G4PVPlacement(0,
-					G4ThreeVector(0, 0, biasingHead+source_active_height/2.-2*diameter_half),
+					G4ThreeVector(0, 0, biasingHead+source_active_height/2.-((source_active_height+4*height_cap+2*diameter_half)/2.-source_active_height/2.-2*diameter_half)),
 					outerTubLogic,
 					"outerTubPhys",
 					logicWorld,
@@ -235,6 +266,46 @@ void MyDetectorConstruction::BuildRadioaciveHead(G4LogicalVolume *logicWorld) {
 					0, 
 					false);
 
+	if (isCap1) {
+		G4Tubs *cap1Solid = new G4Tubs("cap1Solid",
+									0,
+									source_active_diameter/2.,
+									height_cap/2.,
+									0,
+									360);
+
+		G4LogicalVolume *cap1Logic = new G4LogicalVolume(cap1Solid, steel12, "cap1Logic");
+
+		new G4PVPlacement(0,
+					G4ThreeVector(0, 0, biasingHead-height_cap/2.),
+					cap1Logic,
+					"cap1Phys",
+					logicWorld,
+					true, 	
+					0, 
+					false);
+	}
+
+	if (isCap2) {
+		G4Tubs *cap2Solid = new G4Tubs("cap2Solid",
+									0,
+									(source_active_diameter+2*diameter_half)/2.,
+									height_cap/2.,
+									0,
+									360);
+
+		G4LogicalVolume *cap2Logic = new G4LogicalVolume(cap2Solid, steel12, "cap2Logic");
+
+		new G4PVPlacement(0,
+					G4ThreeVector(0, 0, biasingHead-5*height_cap/2.),
+					cap2Logic,
+					"cap2Phys",
+					logicWorld,
+					true, 	
+					0, 
+					false);
+	}
+
 	// head
 	G4VSolid *headSolid = new G4Orb("headSolid", Rsphere/2.);
 
@@ -242,14 +313,20 @@ void MyDetectorConstruction::BuildRadioaciveHead(G4LogicalVolume *logicWorld) {
 											0,
 											edge_frame/2.,
 											0,
-											source_active_diameter/2.,
-											biasing_frame/2.+biasEdge_frame/2.,
+											source_active_diameter/2.+2*diameter_half,
+											biasing_frame/2.+biasEdge_frame/2.-4*height_cap,
 											0,
 											360);
+
+	G4VSolid *headSolidMinus2 = new G4Tubs("headSolidMinus2",
+									0,
+									(source_active_diameter+4*diameter_half)/2.,
+									(source_active_height+2*diameter_half+4*height_cap)/2.,
+									0,
+									360);
 	
 	headSolid = new G4SubtractionSolid("headSolid", headSolid, headSolidMinus, 0, G4ThreeVector(0,0,-(biasing_frame/2.*CLHEP::mm+biasEdge_frame/2.)));
-	headSolid = new G4SubtractionSolid("headSolid", headSolid, sourceSolid, 0, G4ThreeVector(0,0,source_active_height/2));
-	headSolid = new G4SubtractionSolid("headSolid", headSolid, sourceSolid, 0, G4ThreeVector(0,0,source_active_height/2));
+	headSolid = new G4SubtractionSolid("headSolid", headSolid, headSolidMinus2, 0, G4ThreeVector(0,0,source_active_height/2.-2*height_cap));
 
 	G4LogicalVolume *headLogic = new G4LogicalVolume(headSolid, Uran, "headLogic");
 
@@ -265,49 +342,45 @@ void MyDetectorConstruction::BuildRadioaciveHead(G4LogicalVolume *logicWorld) {
 
 
 void MyDetectorConstruction::BuildContainer(G4LogicalVolume *logicWorld) {
-	G4double containerPlacememnt = -biasingHead+placement_container+biasing_frame-edge_container/2.;
-
 	G4NistManager *nist = G4NistManager::Instance();
 	G4Material *PbMat = nist->FindOrBuildMaterial("G4_Pb");
 	G4Material *AlMat = nist->FindOrBuildMaterial("G4_Al");
 
 	G4Box *fantomWorld = new G4Box("fantomWorld",
-					(edge_container/2),
-					(edge_container/2),
-					(edge_container/2));
+					(edge_container-4*thikness_container)/2.,
+					(edge_container-4*thikness_container)/2.,
+					(edge_container-4*thikness_container)/2.);
 
-	// Container Pb
-	G4VSolid *PbWorld = new G4Box("PbWorld",
-					edge_container/2+thikness_container,
-					edge_container/2+thikness_container,
-					edge_container/2+thikness_container);
+	G4VSolid *innerWorld = new G4Box("innerWorld",
+					(edge_container-2*thikness_container)/2.,
+					(edge_container-2*thikness_container)/2.,
+					(edge_container-2*thikness_container)/2.);
 	
-	// Container Al
-	G4VSolid *AlWorld = new G4Box("AlWorld",
-					edge_container/2+2*thikness_container,
-					edge_container/2+2*thikness_container,
-					edge_container/2+2*thikness_container);
+	G4VSolid *outerWorld = new G4Box("outerWorld",
+									edge_container/2.,
+									edge_container/2.,
+									edge_container/2.);
 
-	AlWorld = new G4SubtractionSolid("AlWorld", AlWorld, PbWorld, 0, G4ThreeVector(0,0,0));
-	PbWorld = new G4SubtractionSolid("PbWorld", PbWorld, fantomWorld, 0, G4ThreeVector(0,0,0));
+	outerWorld = new G4SubtractionSolid("outerWorld", outerWorld, innerWorld, 0, G4ThreeVector(0,0,0));
+	innerWorld = new G4SubtractionSolid("innerWorld", innerWorld, fantomWorld, 0, G4ThreeVector(0,0,0));
 
-	G4LogicalVolume *PbLogic = new G4LogicalVolume(PbWorld, AlMat, "PbLogic");
+	G4LogicalVolume *innerLogic = new G4LogicalVolume(innerWorld, AlMat, "innerLogic");
 
 	new G4PVPlacement(0,
-					G4ThreeVector(0, 0, -(containerPlacememnt+edge_container/2)), 
-					PbLogic, 
-					"PbPhys",
+					G4ThreeVector(0, 0, -(containerPlacement)), 
+					innerLogic, 
+					"innerPhys",
 					logicWorld, 
 					true,
 					0, 
 					false);
 
-	G4LogicalVolume *AlLogic = new G4LogicalVolume(AlWorld, PbMat, "AlLogic");
+	G4LogicalVolume *outerLogic = new G4LogicalVolume(outerWorld, PbMat, "outerLogic");
 
 	new G4PVPlacement(0,
-					G4ThreeVector(0, 0, -(containerPlacememnt+edge_container/2)), 
-					AlLogic, 
-					"AlPhys",
+					G4ThreeVector(0, 0, -(containerPlacement)), 
+					outerLogic, 
+					"outerPhys",
 					logicWorld, 
 					true,
 					0, 
@@ -315,9 +388,7 @@ void MyDetectorConstruction::BuildContainer(G4LogicalVolume *logicWorld) {
 }
 
 
-void MyDetectorConstruction::BuildWaterFantom(G4LogicalVolume *logicWorld) {
-	G4double containerPlacememnt = -biasingHead+placement_container+biasing_frame-fantom_sizeC/2.;
-
+void MyDetectorConstruction::BuildFantom(G4LogicalVolume *logicWorld) {
 	G4NistManager *nist = G4NistManager::Instance();
 	G4Material *SiMat = nist->FindOrBuildMaterial("G4_Si");
 
@@ -329,7 +400,7 @@ void MyDetectorConstruction::BuildWaterFantom(G4LogicalVolume *logicWorld) {
 	G4LogicalVolume *fantomLogic = new G4LogicalVolume(fantomWorld, SiMat, "fantomLogic");
 	
 	new G4PVPlacement(0,
-					G4ThreeVector(0, 0, -(containerPlacememnt+fantom_sizeC/2)), 
+					G4ThreeVector(0, 0, -(containerPlacement)), 
 					fantomLogic, 
 					"fantomPhys",
 					logicWorld, 
@@ -339,6 +410,12 @@ void MyDetectorConstruction::BuildWaterFantom(G4LogicalVolume *logicWorld) {
 }
 
 
+void MyDetectorConstruction::BuildDiaphragm(G4LogicalVolume *logicWorld) {
+
+}
+
+
+// sets sensitive volume for calculations
 void MyDetectorConstruction::ConstructSDandField() {
 	const std::vector<G4String> part = {"e-", "gamma"};
 	G4SDParticleFilter* Filter = new G4SDParticleFilter("Filter",part);
@@ -365,6 +442,8 @@ void MyDetectorConstruction::ConstructSDandField() {
 	}
 }
 
+
+// gets distance from diaphragm to container
 void MyDetectorConstruction::SetDistance() {
 	std::ifstream dist;
 	dist.open("macro/distance.txt", std::ios::in);

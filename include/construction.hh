@@ -39,8 +39,10 @@ private:
 	
 	std::pair<G4LogicalVolume*, G4VPhysicalVolume*> BuildWorld();
 	void BuildRadioaciveHead(G4LogicalVolume *logicWorld);
-	void BuildWaterFantom(G4LogicalVolume *logicWorld);
+	void BuildFantom(G4LogicalVolume *logicWorld);
 	void BuildContainer(G4LogicalVolume *logicWorld);
+	void BuildDiaphragm(G4LogicalVolume *logicWorld);
+	void BuildMaterials();
 
 	void ReadSizes();
 	void ReadMaterials();
@@ -62,6 +64,8 @@ private:
 		G4double edge_frame;
 
 		// source
+		G4bool isCap1;
+		G4bool isCap2;
 		G4double source_active_diameter = 0 * CLHEP::mm;
 		G4double source_active_height = 0 * CLHEP::mm;
 		G4double source_diameter = 0 * CLHEP::mm;
@@ -80,8 +84,15 @@ private:
 	G4double fantom_sizeB;
 	G4double fantom_sizeC;
 
+	// diaphragm
+	G4bool diaphragmPlaced;
+
+	G4double containerPlacement;
+	G4double height_cap;
+	G4double diameter_half;
 	// MATERIALS
 	// uran
+	G4Material *Uran;
 	G4double ro_uran;
 	std::vector<G4int> Z_uran;
 	std::vector<G4int> A_uran;
@@ -90,9 +101,11 @@ private:
 
 	// steel
 	// steel12
+	G4Material *steel12;
 	G4double ro_steel12;
 	std::map<std::string, G4double> mat_steel12;
 	// steel02
+	G4Material *steel02;
 	G4double ro_steel02;
 	std::map<std::string, G4double> mat_steel02;
 
