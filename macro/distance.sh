@@ -1,8 +1,8 @@
 #!/bin/bash
 #dist=(0 70 140 210 280 350 420 490 560 630 700 770 840 910 980)
 init=0
-amount=15
-step=70
+amount=105
+step=10
 mc_time=10
 for ((i=0; i<"${amount}"; i++))
 do

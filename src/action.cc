@@ -2,9 +2,7 @@
 
 MyActionInitialization::MyActionInitialization(SimpleRunAction *arun) : run(arun) {}
 
-MyActionInitialization::~MyActionInitialization() {
-	delete run;
-}
+MyActionInitialization::~MyActionInitialization() {}
 
 void MyActionInitialization::BuildForMaster() const {
 	SetUserAction(run);

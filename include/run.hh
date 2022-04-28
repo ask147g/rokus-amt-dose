@@ -35,6 +35,9 @@ private:
   G4double placement_container = 0;
   void SetDistance();
   void SetDistanceType0();
+
+  void ResOutputOneContainer(const G4Run* run);
+  void ResOutputPlane(const G4Run* run);
 };
 
 #endif

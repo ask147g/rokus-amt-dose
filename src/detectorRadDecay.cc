@@ -22,7 +22,6 @@ DetectorRadDecay::~DetectorRadDecay() {
 void DetectorRadDecay::Initialize(G4HCofThisEvent*) {}
 
 G4bool DetectorRadDecay::ProcessHits(G4Step* step, G4TouchableHistory*) {
-
   G4double kine = step->GetTrack()->GetKineticEnergy();
   G4String name = step->GetTrack()->GetParticleDefinition()->G4ParticleDefinition::GetParticleName();
   if (kine == 0) return true;

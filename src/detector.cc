@@ -2,9 +2,7 @@
 
 MySensitiveDetector::MySensitiveDetector(G4String name, SimpleRunAction *arun) : G4VSensitiveDetector(name), run(arun) {}
 
-MySensitiveDetector::~MySensitiveDetector() {
-  delete run;
-}
+MySensitiveDetector::~MySensitiveDetector() {}
 
 void MySensitiveDetector::Initialize(G4HCofThisEvent*) {}
 

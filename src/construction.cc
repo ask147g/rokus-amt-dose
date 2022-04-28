@@ -11,9 +11,7 @@ MyDetectorConstruction::MyDetectorConstruction(SimpleRunAction *arun): G4VUserDe
 }
 
 
-MyDetectorConstruction::~MyDetectorConstruction() {
-	delete run, SDman;
-}
+MyDetectorConstruction::~MyDetectorConstruction() {}
 
 
 G4VPhysicalVolume *MyDetectorConstruction::Construct() {
