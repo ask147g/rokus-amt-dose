@@ -1,5 +1,5 @@
-#ifndef detector_h
-#define detector_h 1
+#ifndef detectorPlane_h
+#define detectorPlane_h 1
 
 #include "G4VSensitiveDetector.hh"
 
@@ -8,10 +8,10 @@
 class G4Step;
 class G4HCofThisEvent;
 
-class MySensitiveDetector : public G4VSensitiveDetector {
+class PlaneDetector : public G4VSensitiveDetector {
 public:
-  MySensitiveDetector(G4String name, SimpleRunAction *arun);
-  virtual ~MySensitiveDetector();
+  PlaneDetector(G4String name, SimpleRunAction *arun);
+  virtual ~PlaneDetector();
   
   virtual void   Initialize(G4HCofThisEvent* hitCollection);
   virtual G4bool ProcessHits(G4Step* step, G4TouchableHistory* history);

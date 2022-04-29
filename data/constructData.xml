@@ -9,13 +9,13 @@
     <biasingHead>500</biasingHead>
     <!--mm-->
     <frame>
-        <sphere>609</sphere>
+        <sphere>630</sphere>
         <cons>
             <!--cm-->
             <edge>24</edge>
             <biasEdge>75</biasEdge>
             <!--mm-->
-            <biasing>326.25</biasing>
+            <biasing>337.5</biasing>
         </cons>
     </frame>
 
@@ -27,13 +27,13 @@
     </source>
 </radioactivehead>
 
-<container placed="true">
+<container placed="false">
     <!--mm-->
     <thikness>1</thikness>
     <!--cm-->
     <edge>4</edge>
     <!--cm-->
-    <placement>70</placement>
+    <placement>0</placement>
 </container>
 
 <fantom placed="true" sensitive="true">
@@ -42,3 +42,10 @@
     <sizeB>3.6</sizeB>
     <sizeC>3.6</sizeC>
 </fantom>
+
+<plane fantomPlaced="true" containerPlaced="false">
+    <!--cm-->
+    <planeSize>100</planeSize>
+    <planeBiasing>164</planeBiasing>
+    <step>5</step>
+</plane>

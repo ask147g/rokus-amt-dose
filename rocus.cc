@@ -19,7 +19,10 @@ int SetTypeCalculations() {
 	TypeCalculations types = TypeCalculations();
 	types.TypeMessenger();
 	int t;
-	std::cin >> t;
+	do {
+		std::cin >> t;
+	} while (t < 0 || t > 8);
+	
 	TypeCalculations::SetType(t);
 	return types.GetTypeCalc();
 }
@@ -56,10 +59,10 @@ int main(int argc, char** argv) {
 	runManager->SetVerboseLevel(0);
 	runManager->Initialize();
 
-	if (ttype == 0 || ttype == 2)
+	if (ttype == 0 || ttype == 2 || ttype == 3 || ttype == 5)
 		runManager->BeamOn(particles);
 	
-	if (ttype == 1) {
+	if (ttype == 1 || ttype == 4) {
 		G4UIExecutive *ui = new G4UIExecutive(argc,argv);
 
 		G4VisManager *visManager = new G4VisExecutive();

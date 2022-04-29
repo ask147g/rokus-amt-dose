@@ -24,6 +24,7 @@
 
 #include "detector.hh"
 #include "detectorRadDecay.hh"
+#include "detectorPlane.hh"
 #include "typeCalc.hh"
 
 class MyDetectorConstruction : public G4VUserDetectorConstruction {
@@ -39,10 +40,13 @@ private:
 	
 	std::pair<G4LogicalVolume*, G4VPhysicalVolume*> BuildWorld();
 	void BuildRadioaciveHead(G4LogicalVolume *logicWorld);
-	void BuildFantom(G4LogicalVolume *logicWorld);
-	void BuildContainer(G4LogicalVolume *logicWorld);
+	void BuildFantom(G4LogicalVolume *logicWorld, G4double x, G4double y, G4double z, G4int copy);
+	void BuildContainer(G4LogicalVolume *logicWorld, G4double x, G4double y, G4double z, G4int copy);
 	void BuildDiaphragm(G4LogicalVolume *logicWorld);
 	void BuildMaterials();
+
+	void BuildFantomPlane(G4LogicalVolume *logicWorld);
+	void BuildContainerPlane(G4LogicalVolume *logicWorld);
 
 	void ReadSizes();
 	void ReadMaterials();
@@ -87,9 +91,19 @@ private:
 	// diaphragm
 	G4bool diaphragmPlaced;
 
+	// plane
+	G4bool planeFantomPlaced;
+	G4bool planeContainerPlaced;
+	G4double planeSize;
+	G4double planeBiasing;
+	G4double planeStep;
+	G4double planePlacement;
+
+	// general
 	G4double containerPlacement;
 	G4double height_cap;
 	G4double diameter_half;
+	G4int amountPlane;
 	// MATERIALS
 	// uran
 	G4Material *Uran;

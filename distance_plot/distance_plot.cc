@@ -11,8 +11,8 @@ void distance_plot()
 	std::vector<int> exp_dist = {0, 70, 140, 210, 280, 350, 420, 490, 560, 630, 700, 770, 840, 910, 980};
 	std::vector<float> exp_mist = {0.0133973736787141, 0.00161481160892966, 0.000831052142980693, 0.000311694762051112, 0.000197734423945098, 0.000103487168332118, 6.79692935581946E-05, 6.48061786251899E-05, 6.73725366733366E-05, 3.97871450647065E-05, 2.98065069909239E-05, 3.88629304131845E-05, 2.49379129299148E-05, 2.29124441843292E-05, 2.30880210368927E-05};
 	
-	const int amount_models = 15;
-	const int first_model = 15;
+	const int amount_models = 16;
+	const int first_model = 16;
 	const int mult_amount = 10;
 	std::vector<std::map<int, std::vector<float> > > all_models_data;
 

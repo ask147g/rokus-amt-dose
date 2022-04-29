@@ -3,11 +3,18 @@
 MyDetectorConstruction::MyDetectorConstruction(SimpleRunAction *arun): G4VUserDetectorConstruction(), run(arun) {
 	ReadSizes();
 	ReadMaterials();
-	if ((TypeCalculations::GetTypeCalc()) == 2) SetDistance();
+	if (TypeCalculations::GetTypeCalc() == 2) SetDistance();
+	BuildMaterials();
+
+	// general
 	diameter_half = (source_diameter - source_active_diameter)/4.;
 	height_cap = (source_height-source_active_height-2*diameter_half)/4.;
 	containerPlacement = -biasingHead+Rsphere/2.+edge_container/2.+placement_container;
-	BuildMaterials();
+	amountPlane = ceil(planeSize/planeStep);
+	if (amountPlane % 2 == 0) ++amountPlane;
+
+	if (TypeCalculations::GetTypeCalc() >= 3 && TypeCalculations::GetTypeCalc() <= 5)
+		run->SetParametersPlane(amountPlane, planeStep);
 }
 
 
@@ -26,11 +33,27 @@ G4VPhysicalVolume *MyDetectorConstruction::Construct() {
 	// only 1 container
 	if ((TypeCalculations::GetTypeCalc()) >= 0 && TypeCalculations::GetTypeCalc() <= 2) {
 		if (containerPlaced)
-			BuildContainer(world.first);
+			BuildContainer(world.first, 0, 0, -containerPlacement, 0);
 		if (fantomPlaced)
-			BuildFantom(world.first);
+			BuildFantom(world.first, 0, 0, -containerPlacement, 0);
 	}
 	
+	// plane
+	if ((TypeCalculations::GetTypeCalc()) >= 3 && TypeCalculations::GetTypeCalc() <= 5) {
+		if (planeContainerPlaced)
+			BuildContainerPlane(world.first); 
+		if (planeFantomPlaced)
+			BuildFantomPlane(world.first);
+	}
+
+	// closet
+	if ((TypeCalculations::GetTypeCalc()) >= 6 && TypeCalculations::GetTypeCalc() <= 8) {
+		if (planeContainerPlaced)
+			BuildContainerPlane(world.first);
+		if (planeFantomPlaced)
+			BuildFantomPlane(world.first);
+	}
+
 	return world.second;
 }
 
@@ -44,6 +67,7 @@ void MyDetectorConstruction::ReadSizes() {
     buffer.push_back('\0');
     doc.parse<0>(&buffer[0]);
 	
+	std::string string;
 	// world
 	root_node = doc.first_node("world");
 	world_sizeA = std::stof(root_node->first_node("sizeA")->value()); world_sizeA *= CLHEP::m;
@@ -52,7 +76,8 @@ void MyDetectorConstruction::ReadSizes() {
 	
 	// radioactive head
     root_node = doc.first_node("radioactivehead");
-	radioactiveheadPlaced = root_node->first_attribute("placed")->value();
+	string = root_node->first_attribute("placed")->value();
+	std::istringstream(string) >> std::boolalpha >> radioactiveheadPlaced;
 	biasingHead = std::stof(root_node->first_node("biasingHead")->value()); biasingHead *= CLHEP::cm;
 		// frame
 		Rsphere = std::stof(root_node->first_node("frame")->first_node("sphere")->value()); Rsphere *= CLHEP::mm;
@@ -61,9 +86,12 @@ void MyDetectorConstruction::ReadSizes() {
 		biasing_frame = std::stof(root_node->first_node("frame")->first_node("cons")->first_node("biasing")->value()); biasing_frame *= CLHEP::mm;
 
 		// source
-		sourceSens = root_node->first_node("source")->first_attribute("sensitive")->value();
-		isCap1 = root_node->first_node("source")->first_attribute("cap1")->value();
-		isCap2 = root_node->first_node("source")->first_attribute("cap2")->value();
+		string = root_node->first_node("source")->first_attribute("sensitive")->value();
+		std::istringstream(string) >> std::boolalpha >> sourceSens;
+		string = root_node->first_node("source")->first_attribute("cap1")->value();
+		std::istringstream(string) >> std::boolalpha >> isCap1;
+		string = root_node->first_node("source")->first_attribute("cap2")->value();
+		std::istringstream(string) >> std::boolalpha >> isCap2;
 		source_active_diameter = std::stof(root_node->first_node("source")->first_node("source_active_diameter")->value()); source_active_diameter *= CLHEP::mm;
 		source_active_height = std::stof(root_node->first_node("source")->first_node("source_active_height")->value()); source_active_height *= CLHEP::mm;
 		source_diameter = std::stof(root_node->first_node("source")->first_node("source_diameter")->value()); source_diameter *= CLHEP::mm;
@@ -71,18 +99,31 @@ void MyDetectorConstruction::ReadSizes() {
 
 	// container
 	root_node = doc.first_node("container");
-	containerPlaced = root_node->first_attribute("placed")->value();
+	string = root_node->first_attribute("placed")->value();
+	std::istringstream(string) >> std::boolalpha >> containerPlaced;
 	thikness_container = std::stof(root_node->first_node("thikness")->value()); thikness_container *= CLHEP::mm;	
 	edge_container = std::stof(root_node->first_node("edge")->value()); edge_container *= CLHEP::cm;
 	placement_container = std::stof(root_node->first_node("placement")->value()); placement_container *= CLHEP::cm;
 
 	// fantom
 	root_node = doc.first_node("fantom");
-	fantomPlaced = root_node->first_attribute("placed")->value();
-	fantomSensitive = root_node->first_attribute("sensitive")->value();
+	string = root_node->first_attribute("placed")->value();
+	std::istringstream(string) >> std::boolalpha >> fantomPlaced;
+	string = root_node->first_attribute("sensitive")->value();
+	std::istringstream(string) >> std::boolalpha >> fantomSensitive;
 	fantom_sizeA = std::stof(root_node->first_node("sizeA")->value()); fantom_sizeA *= CLHEP::cm;
 	fantom_sizeB = std::stof(root_node->first_node("sizeB")->value()); fantom_sizeB *= CLHEP::cm;
 	fantom_sizeC = std::stof(root_node->first_node("sizeC")->value()); fantom_sizeC *= CLHEP::cm;
+	
+	// plane
+	root_node = doc.first_node("plane");
+	string = root_node->first_attribute("fantomPlaced")->value();
+	std::istringstream(string) >> std::boolalpha >> planeFantomPlaced;
+	string = root_node->first_attribute("containerPlaced")->value();
+	std::istringstream(string) >> std::boolalpha >> planeContainerPlaced;
+	planeSize = std::stof(root_node->first_node("planeSize")->value()); planeSize *= CLHEP::cm;
+	planeBiasing = std::stof(root_node->first_node("planeBiasing")->value()); planeBiasing *= CLHEP::cm;
+	planeStep = std::stof(root_node->first_node("step")->value()); planeStep *= CLHEP::cm;
 }
 
 
@@ -339,7 +380,7 @@ void MyDetectorConstruction::BuildRadioaciveHead(G4LogicalVolume *logicWorld) {
 }
 
 
-void MyDetectorConstruction::BuildContainer(G4LogicalVolume *logicWorld) {
+void MyDetectorConstruction::BuildContainer(G4LogicalVolume *logicWorld, G4double x, G4double y, G4double z, G4int copy) {
 	G4NistManager *nist = G4NistManager::Instance();
 	G4Material *PbMat = nist->FindOrBuildMaterial("G4_Pb");
 	G4Material *AlMat = nist->FindOrBuildMaterial("G4_Al");
@@ -365,7 +406,7 @@ void MyDetectorConstruction::BuildContainer(G4LogicalVolume *logicWorld) {
 	G4LogicalVolume *innerLogic = new G4LogicalVolume(innerWorld, AlMat, "innerLogic");
 
 	new G4PVPlacement(0,
-					G4ThreeVector(0, 0, -(containerPlacement)), 
+					G4ThreeVector(x, y, z), 
 					innerLogic, 
 					"innerPhys",
 					logicWorld, 
@@ -376,7 +417,7 @@ void MyDetectorConstruction::BuildContainer(G4LogicalVolume *logicWorld) {
 	G4LogicalVolume *outerLogic = new G4LogicalVolume(outerWorld, PbMat, "outerLogic");
 
 	new G4PVPlacement(0,
-					G4ThreeVector(0, 0, -(containerPlacement)), 
+					G4ThreeVector(x, y, z), 
 					outerLogic, 
 					"outerPhys",
 					logicWorld, 
@@ -386,7 +427,7 @@ void MyDetectorConstruction::BuildContainer(G4LogicalVolume *logicWorld) {
 }
 
 
-void MyDetectorConstruction::BuildFantom(G4LogicalVolume *logicWorld) {
+void MyDetectorConstruction::BuildFantom(G4LogicalVolume *logicWorld, G4double x, G4double y, G4double z, G4int copy) {
 	G4NistManager *nist = G4NistManager::Instance();
 	G4Material *SiMat = nist->FindOrBuildMaterial("G4_Si");
 
@@ -398,12 +439,12 @@ void MyDetectorConstruction::BuildFantom(G4LogicalVolume *logicWorld) {
 	G4LogicalVolume *fantomLogic = new G4LogicalVolume(fantomWorld, SiMat, "fantomLogic");
 	
 	new G4PVPlacement(0,
-					G4ThreeVector(0, 0, -(containerPlacement)), 
+					G4ThreeVector(x, y, z), 
 					fantomLogic, 
 					"fantomPhys",
 					logicWorld, 
 					true,
-					0, 
+					copy, 
 					false);
 }
 
@@ -413,30 +454,63 @@ void MyDetectorConstruction::BuildDiaphragm(G4LogicalVolume *logicWorld) {
 }
 
 
+void MyDetectorConstruction::BuildFantomPlane(G4LogicalVolume *logicWorld) {
+	int copy = 0;
+	for (int x = -amountPlane/2.; x < amountPlane/2.; ++x) {
+		for (int y = -amountPlane/2.; y < amountPlane/2.; ++y) {
+			BuildFantom(logicWorld, x*planeStep, y*planeStep, planeBiasing, copy);
+			++copy;
+		}
+	}
+}
+
+
+void MyDetectorConstruction::BuildContainerPlane(G4LogicalVolume *logicWorld) {
+	int copy = 0;
+	for (int x = -amountPlane/2.; x < amountPlane/2.; ++x) {
+		for (int y = -amountPlane/2.; y < amountPlane/2.; ++y) {
+			BuildContainer(logicWorld, x*planeStep, y*planeStep, planeBiasing, copy);
+			++copy;
+		}
+	}
+}
+
+
 // sets sensitive volume for calculations
 void MyDetectorConstruction::ConstructSDandField() {
 	const std::vector<G4String> part = {"e-", "gamma"};
 	G4SDParticleFilter* Filter = new G4SDParticleFilter("Filter",part);
 	
-	if (fantomPlaced) {
-		G4VSensitiveDetector* sd = new MySensitiveDetector("detectorField", run);
-		SetSensitiveDetector("fantomLogic", sd, true);
-		sd->SetFilter(Filter);
-		SDman->AddNewDetector(sd);
+	if (TypeCalculations::GetTypeCalc() >= 0 && TypeCalculations::GetTypeCalc() <= 2) {
+		if (fantomPlaced) {
+			G4VSensitiveDetector* sd = new MySensitiveDetector("detectorField", run);
+			SetSensitiveDetector("fantomLogic", sd, true);
+			sd->SetFilter(Filter);
+			SDman->AddNewDetector(sd);
+		}
+
+		if (fantomPlaced && fantomSensitive) {
+			G4VSensitiveDetector* sdRadDecay = new DetectorRadDecay("fantomRadDecay");
+			SetSensitiveDetector("fantomLogic", sdRadDecay, true);
+			sdRadDecay->SetFilter(Filter);
+			SDman->AddNewDetector(sdRadDecay);
+		}
+
+		if (radioactiveheadPlaced && sourceSens) {
+			G4VSensitiveDetector* sdRadDecay2 = new DetectorRadDecay("sourceRadDecay");
+			SetSensitiveDetector("sourceLogic", sdRadDecay2, true);
+			sdRadDecay2->SetFilter(Filter);
+			SDman->AddNewDetector(sdRadDecay2);
+		}
 	}
 
-	if (fantomPlaced && fantomSensitive) {
-		G4VSensitiveDetector* sdRadDecay = new DetectorRadDecay("fantomRadDecay");
-		SetSensitiveDetector("fantomLogic", sdRadDecay, true);
-		sdRadDecay->SetFilter(Filter);
-		SDman->AddNewDetector(sdRadDecay);
-	}
-
-	if (radioactiveheadPlaced && sourceSens) {
-		G4VSensitiveDetector* sdRadDecay2 = new DetectorRadDecay("sourceRadDecay");
-		SetSensitiveDetector("sourceLogic", sdRadDecay2, true);
-		sdRadDecay2->SetFilter(Filter);
-		SDman->AddNewDetector(sdRadDecay2);
+	if (TypeCalculations::GetTypeCalc() >= 3 && TypeCalculations::GetTypeCalc() <= 5) {
+		if (fantomPlaced) {
+			G4VSensitiveDetector* sd = new PlaneDetector("planeDet", run);
+			SetSensitiveDetector("fantomLogic", sd, true);
+			sd->SetFilter(Filter);
+			SDman->AddNewDetector(sd);
+		}
 	}
 }
 

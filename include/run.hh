@@ -27,17 +27,25 @@ public:
   void SetVolumeMass(G4double massin) {mass = massin;}
   void SetDecreasingActivity(double dec) {decreasingActivity = dec;};
   void SetNumEvents(double num) {numEvents = num;};
+  void PlaneEdep(G4double edep, G4int copy);
+  void SetParametersPlane(G4int amount, G4double step);
 private:
   G4double mass;
   G4double Edep = 0;
   double decreasingActivity = 1;
   double numEvents = 0;
   G4double placement_container = 0;
+  G4int planeAmount = 0;
+  G4double planeStep;
+
+  std::map<std::pair<G4double, G4double>, G4double > PlaneXYEdep;
   void SetDistance();
   void SetDistanceType0();
 
   void ResOutputOneContainer(const G4Run* run);
   void ResOutputPlane(const G4Run* run);
+
+  std::pair<G4double, G4double> GetXY(G4int copy);
 };
 
 #endif
