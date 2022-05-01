@@ -8,4 +8,4 @@
 <!--date of experiment-->
 <date>15.05.2020</date>
 <!--times increasing velocity of calculations-->
-<increasingTimes>100000000</increasingTimes>
+<increasingTimes>100000</increasingTimes>

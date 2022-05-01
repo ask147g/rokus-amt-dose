@@ -19,7 +19,7 @@
         </cons>
     </frame>
 
-    <source sensitive="true" cap1="false" cap2="false">
+    <source sensitive="false" cap1="false" cap2="false">
         <source_active_diameter>21</source_active_diameter>
         <source_active_height>24.5</source_active_height>
         <source_diameter>23</source_diameter>
@@ -33,10 +33,10 @@
     <!--cm-->
     <edge>4</edge>
     <!--cm-->
-    <placement>0</placement>
+    <placement>630</placement>
 </container>
 
-<fantom placed="true" sensitive="true">
+<fantom placed="true" sensitive="false">
     <!--cm-->
     <sizeA>3.6</sizeA>
     <sizeB>3.6</sizeB>

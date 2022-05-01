@@ -1,6 +1,8 @@
 #!/bin/bash
 cmake ..
 make -j8
+cd ..
 echo "0" | ./rocus
-echo ".q" | root spectrum.cc
+cd output
+echo ".q" | root spectrum_source.cc
 echo ".q" | root spectrum_fantom.cc

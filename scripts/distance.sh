@@ -1,5 +1,4 @@
 #!/bin/bash
-#dist=(0 70 140 210 280 350 420 490 560 630 700 770 840 910 980)
 init=0
 amount=105
 step=10
@@ -15,6 +14,6 @@ for ((j=0; j<"${mc_time}"; j++))
 do
 echo "2" | ./rocus
 done
-cd macro
+cd scripts
 rm -r distance.txt
 done

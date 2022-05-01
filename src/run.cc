@@ -22,7 +22,7 @@ void SimpleRunAction::BeginOfRunAction(const G4Run* aRun) {
 
 void SimpleRunAction::EndOfRunAction(const G4Run* run) {
   Edep = 100*Edep*decreasingActivity/(mass+0.);
-  if (TypeCalculations::GetTypeCalc() >= 0 && TypeCalculations::GetTypeCalc() <= 3)
+  if (TypeCalculations::GetTypeCalc() >= 0 && TypeCalculations::GetTypeCalc() <= 2)
     ResOutputOneContainer(run);
   if (TypeCalculations::GetTypeCalc() >= 3 && TypeCalculations::GetTypeCalc() <= 5)
     ResOutputPlane(run);

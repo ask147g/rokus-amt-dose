@@ -18,14 +18,14 @@ SourceActivity::SourceActivity() {GetActivityData();}
 
 SourceActivity::~SourceActivity() {}
 
-void SourceActivity::Messanger() {
+void SourceActivity::Messenger() {
     std::cout << "Activity: " << activity << " Bq" << std::endl;
 }
 
 void SourceActivity::CalculateActivity() {
     activity = activity0 * exp(-log(2)/halfLife*deltaTime); // Ci
     activity *= 3.7*pow(10,10); // Bq
-    Messanger();
+    Messenger();
 }
 
 std::tm SourceActivity::SetDate(std::string Date) {

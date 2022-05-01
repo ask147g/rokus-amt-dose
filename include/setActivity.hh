@@ -17,9 +17,9 @@ private:
     double deltaTime = 0;
     void CalculateActivity();
     void GetActivityData();
-    void Messanger();
+    void Messenger();
     std::tm SetDate(std::string Date);
-    void CalcDeltaTime(std::pair<std::tm, std::tm>);
+    void CalcDeltaTime(std::pair<std::tm, std::tm> date);
     double decreasingActivity = 1;
 public:
     SourceActivity();

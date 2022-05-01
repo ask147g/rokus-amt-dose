@@ -53,6 +53,7 @@ void distance_plot()
 
 		int color = i;
 		if (i > 8) color = i + 1;
+		color = 3;
 		gr = new TGraphErrors();
 		gr->SetFillColor(color+1);
 		gr->SetFillStyle(3002);
@@ -68,6 +69,7 @@ void distance_plot()
    		gr_err->SetMarkerSize(1);
    		gr_err->SetMarkerColor(color+1);
    		gr_err->SetLineColor(color+1);
+		color = 15;
 
 		std::string name = "model" + std::to_string(i) + ".csv";
 		model.open(name, std::ios::in);

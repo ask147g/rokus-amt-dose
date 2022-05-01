@@ -19,9 +19,8 @@ int SetTypeCalculations() {
 	TypeCalculations types = TypeCalculations();
 	types.TypeMessenger();
 	int t;
-	do {
-		std::cin >> t;
-	} while (t < 0 || t > 8);
+	do std::cin >> t;
+	while (t < 0 || t > 8);
 	
 	TypeCalculations::SetType(t);
 	return types.GetTypeCalc();

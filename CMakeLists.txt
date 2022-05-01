@@ -1,7 +1,5 @@
 cmake_minimum_required(VERSION 2.6 FATAL_ERROR)
-
-project(Simulation)
-
+project(ROCUS-AMT)
 find_package(Geant4 REQUIRED ui_all vis_all)
 
 include(${Geant4_USE_FILE})
@@ -11,28 +9,18 @@ file(GLOB sources ${PROJECT_SOURCE_DIR}/src/*.cc)
 file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.hh)
 
 file(GLOB MACRO_FILES "*.mac")
+file(COPY ${MACRO_FILES} DESTINATION ${PROJECT_BINARY_DIR})
 
 file(GLOB dataFile "data/*.xml") 
 file(COPY ${dataFile} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/data)
 
-file(GLOB root "spectrum.cc") 
-file(COPY ${root} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+file(GLOB script "scripts/*.sh") 
+file(COPY ${script} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/scripts)
 
-file(GLOB root "spectrum_fantom.cc") 
-file(COPY ${root} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
-
-file(GLOB script "*.sh") 
-file(COPY ${script} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
-
-file(GLOB script "macro/distance.sh") 
-file(COPY ${script} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/macro)
-
-file(GLOB data "macro/*.csv") 
-file(COPY ${fata} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/macro)
-
-file(COPY ${MACRO_FILES} DESTINATION ${PROJECT_BINARY_DIR})
+file(GLOB root "output/*.cc") 
+file(COPY ${root} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/output)
 
 add_executable(rocus rocus.cc ${sources} ${headers})
 target_link_libraries(rocus ${Geant4_LIBRARIES})
 
-add_custom_target(Simulation DEPENDS rocus)
+add_custom_target(ROCUS-AMT DEPENDS rocus)
