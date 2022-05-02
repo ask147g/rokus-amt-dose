@@ -6,6 +6,8 @@
 <!--date of activity0-->
 <date0>17.02.2011</date0>
 <!--date of experiment-->
-<date>15.05.2020</date>
+<date>15.05.2019</date>
 <!--times increasing velocity of calculations-->
 <increasingTimes>1000000</increasingTimes>
+<!--sec-->
+<time>1</time>

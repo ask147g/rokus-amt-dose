@@ -14,7 +14,7 @@ MyDetectorConstruction::MyDetectorConstruction(SimpleRunAction *arun): G4VUserDe
 	// general
 	diameter_half = (source_diameter - source_active_diameter)/4.;
 	height_cap = (source_height-source_active_height-2*diameter_half)/4.;
-	biasRocus = -biasingHead+Rsphere/2.+edge_container/2.+placement_container;
+	biasRocus = -biasingHead+Rsphere/2.+edge_container/2.;
 	amountPlane = ceil(planeSize/planeStep);
 	if (amountPlane % 2 == 0) ++amountPlane;
 

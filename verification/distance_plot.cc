@@ -11,8 +11,8 @@ void distance_plot()
 	std::vector<int> exp_dist = {0, 70, 140, 210, 280, 350, 420, 490, 560, 630, 700, 770, 840, 910, 980};
 	std::vector<float> exp_mist = {0.0133973736787141, 0.00161481160892966, 0.000831052142980693, 0.000311694762051112, 0.000197734423945098, 0.000103487168332118, 6.79692935581946E-05, 6.48061786251899E-05, 6.73725366733366E-05, 3.97871450647065E-05, 2.98065069909239E-05, 3.88629304131845E-05, 2.49379129299148E-05, 2.29124441843292E-05, 2.30880210368927E-05};
 	
-	const int amount_models = 16;
-	const int first_model = 16;
+	const int amount_models = 1;
+	const int first_model = 1;
 	const int mult_amount = 10;
 	std::vector<std::map<int, std::vector<float> > > all_models_data;
 
@@ -71,7 +71,7 @@ void distance_plot()
    		gr_err->SetLineColor(color+1);
 		color = 15;
 
-		std::string name = "model" + std::to_string(i) + ".csv";
+		std::string name = "distance/model" + std::to_string(i) + ".csv";
 		model.open(name, std::ios::in);
 		auto leg = new TLegend(0.1,0.15,0.5,0.55);
    		leg->SetHeader("Legend");
@@ -170,6 +170,6 @@ void distance_plot()
 	mg_err->GetYaxis()->SetTitle("mistake, %");
 	c2->BuildLegend();
 
-	c1->SaveAs("dose.png");
-	c2->SaveAs("error.png");	
+	c1->SaveAs("figure/dose.png");
+	c2->SaveAs("figure/error.png");	
 }
