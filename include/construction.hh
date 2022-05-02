@@ -47,10 +47,11 @@ private:
 
 	void BuildFantomPlane(G4LogicalVolume *logicWorld);
 	void BuildContainerPlane(G4LogicalVolume *logicWorld);
+	void ReCalculatePlaneBiasing();
 
 	void ReadSizes();
 	void ReadMaterials();
-	void SetDistance();
+	G4double SetDistance();
 	virtual void ConstructSDandField();
 	// SIZES
 	// world
@@ -100,7 +101,7 @@ private:
 	G4double planePlacement;
 
 	// general
-	G4double containerPlacement;
+	G4double biasRocus;
 	G4double height_cap;
 	G4double diameter_half;
 	G4int amountPlane;

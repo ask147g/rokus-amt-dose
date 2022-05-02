@@ -1,7 +1,7 @@
 #!/bin/bash
+cd ..
 cmake ..
 make -j8
-cd ..
 echo "0" | ./rocus
 cd output
 echo ".q" | root spectrum_source.cc

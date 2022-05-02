@@ -3,13 +3,18 @@
 MyDetectorConstruction::MyDetectorConstruction(SimpleRunAction *arun): G4VUserDetectorConstruction(), run(arun) {
 	ReadSizes();
 	ReadMaterials();
-	if (TypeCalculations::GetTypeCalc() == 2) SetDistance();
+	if (TypeCalculations::GetTypeCalc() == 2) placement_container = SetDistance();
+	std::cout << placement_container << std::endl;
+	if (TypeCalculations::GetTypeCalc() == 5) {
+		planeBiasing = SetDistance();
+		ReCalculatePlaneBiasing();
+	}
 	BuildMaterials();
 
 	// general
 	diameter_half = (source_diameter - source_active_diameter)/4.;
 	height_cap = (source_height-source_active_height-2*diameter_half)/4.;
-	containerPlacement = -biasingHead+Rsphere/2.+edge_container/2.+placement_container;
+	biasRocus = -biasingHead+Rsphere/2.+edge_container/2.+placement_container;
 	amountPlane = ceil(planeSize/planeStep);
 	if (amountPlane % 2 == 0) ++amountPlane;
 
@@ -33,9 +38,9 @@ G4VPhysicalVolume *MyDetectorConstruction::Construct() {
 	// only 1 container
 	if ((TypeCalculations::GetTypeCalc()) >= 0 && TypeCalculations::GetTypeCalc() <= 2) {
 		if (containerPlaced)
-			BuildContainer(world.first, 0, 0, -containerPlacement, 0);
+			BuildContainer(world.first, 0, 0, -biasRocus-placement_container, 0);
 		if (fantomPlaced)
-			BuildFantom(world.first, 0, 0, -containerPlacement, 0);
+			BuildFantom(world.first, 0, 0, -biasRocus-placement_container, 0);
 	}
 	
 	// plane
@@ -57,6 +62,18 @@ G4VPhysicalVolume *MyDetectorConstruction::Construct() {
 	return world.second;
 }
 
+
+void MyDetectorConstruction::ReCalculatePlaneBiasing() {
+	planeSize = 50;
+	if (planeBiasing > 100*CLHEP::cm) planeSize = 100;
+	if (planeBiasing > 150*CLHEP::cm) planeSize = 150;
+	if (planeBiasing > 200*CLHEP::cm) planeSize = 200;
+	if (planeBiasing > 450*CLHEP::cm) planeSize = 250;
+	if (planeBiasing > 650*CLHEP::cm) planeSize = 300;
+	if (planeBiasing > 750*CLHEP::cm) planeSize = 350;
+	if (planeBiasing > 850*CLHEP::cm) planeSize = 400;
+	planeSize *= CLHEP::cm;
+}
 
 void MyDetectorConstruction::ReadSizes() {
 	rapidxml::xml_document<> doc;
@@ -458,7 +475,7 @@ void MyDetectorConstruction::BuildFantomPlane(G4LogicalVolume *logicWorld) {
 	int copy = 0;
 	for (int x = -amountPlane/2.; x < amountPlane/2.; ++x) {
 		for (int y = -amountPlane/2.; y < amountPlane/2.; ++y) {
-			BuildFantom(logicWorld, x*planeStep, y*planeStep, planeBiasing, copy);
+			BuildFantom(logicWorld, x*planeStep, y*planeStep, -biasRocus-planeBiasing, copy);
 			++copy;
 		}
 	}
@@ -469,7 +486,7 @@ void MyDetectorConstruction::BuildContainerPlane(G4LogicalVolume *logicWorld) {
 	int copy = 0;
 	for (int x = -amountPlane/2.; x < amountPlane/2.; ++x) {
 		for (int y = -amountPlane/2.; y < amountPlane/2.; ++y) {
-			BuildContainer(logicWorld, x*planeStep, y*planeStep, planeBiasing, copy);
+			BuildContainer(logicWorld, x*planeStep, y*planeStep, -biasRocus-planeBiasing, copy);
 			++copy;
 		}
 	}
@@ -516,14 +533,16 @@ void MyDetectorConstruction::ConstructSDandField() {
 
 
 // gets distance from diaphragm to container
-void MyDetectorConstruction::SetDistance() {
+G4double MyDetectorConstruction::SetDistance() {
 	std::ifstream dist;
-	dist.open("macro/distance.txt", std::ios::in);
+	dist.open("scripts/distance.txt", std::ios::in);
+	G4double aDist;
 	if (dist) {
 		while (1) {
 			if (dist.eof()) break;
-			dist >> placement_container;
+			dist >> aDist;
 		}
-		placement_container *= CLHEP::cm;
+		aDist *= CLHEP::cm;
 	}
+	return aDist;
 }

@@ -1,3 +1,5 @@
+#include <rapidxml/rapidxml.hpp>
+
 #include "G4MTRunManager.hh"
 #include "G4RunManager.hh"
 
@@ -32,7 +34,7 @@ int main(int argc, char** argv) {
 	
 	#ifdef G4MULTITHREADED
 		G4MTRunManager *runManager = new G4MTRunManager();
-		runManager->SetNumberOfThreads(8); // add max
+		runManager->SetNumberOfThreads(G4Threading::G4GetNumberOfCores()); // add max
 	#else
 		G4RunManager *runManager = new G4RunManager();
 	#endif
@@ -69,9 +71,35 @@ int main(int argc, char** argv) {
 
 		G4UImanager *UImanager = G4UImanager::GetUIpointer();
 
-		UImanager->ApplyCommand("/control/execute vis.mac");
-		//UImanager->ApplyCommand("/control/execute plot.mac");
+		UImanager->ApplyCommand("/control/execute macro/vis.mac");
 
+		if (ttype == 1) {
+			rapidxml::xml_document<> doc;
+			rapidxml::xml_node<> *root_node;
+
+    		std::ifstream theFile ("data/constructData.xml");
+    		std::vector<char> buffer((std::istreambuf_iterator<char>(theFile)), std::istreambuf_iterator<char>());
+    		buffer.push_back('\0');
+    		doc.parse<0>(&buffer[0]);
+			std::string string;
+			bool is;
+
+			root_node = doc.first_node("radioactivehead")->first_node("source");
+			string = root_node->first_attribute("cap2")->value();
+			std::istringstream(string) >> std::boolalpha >> is;
+			if (is) UImanager->ApplyCommand("/control/execute macro/cap1.mac");
+
+
+			string = root_node->first_attribute("cap2")->value();
+			std::istringstream(string) >> std::boolalpha >> is;
+			if (is) UImanager->ApplyCommand("/control/execute macro/cap2.mac");
+
+
+			root_node = doc.first_node("container");
+			string = root_node->first_attribute("placed")->value();
+			std::istringstream(string) >> std::boolalpha >> is;
+			if (is) UImanager->ApplyCommand("/control/execute macro/container.mac");
+		}
 		ui->SessionStart();
 	}
 	delete runManager;

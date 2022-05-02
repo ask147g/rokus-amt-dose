@@ -27,13 +27,13 @@
     </source>
 </radioactivehead>
 
-<container placed="false">
+<container placed="true">
     <!--mm-->
     <thikness>1</thikness>
     <!--cm-->
     <edge>4</edge>
     <!--cm-->
-    <placement>630</placement>
+    <placement>70</placement>
 </container>
 
 <fantom placed="true" sensitive="false">
@@ -43,7 +43,7 @@
     <sizeC>3.6</sizeC>
 </fantom>
 
-<plane fantomPlaced="true" containerPlaced="false">
+<plane fantomPlaced="true" containerPlaced="true">
     <!--cm-->
     <planeSize>100</planeSize>
     <planeBiasing>164</planeBiasing>

@@ -5,10 +5,10 @@ void spectrum_fantom()
 {
 	//gROOT->SetStyle("BELLE2");
 	std::ifstream gamma_data;
-	gamma_data.open("fantomRadDecay_gamma.csv", std::ios::in);
+	gamma_data.open("spectrum/fantomRadDecay_gamma.csv", std::ios::in);
 
 	std::ifstream electron_data;
-	electron_data.open("fantomRadDecay_electron.csv", std::ios::in);
+	electron_data.open("spectrum/fantomRadDecay_electron.csv", std::ios::in);
 
 	TH1F *gamma_spectrum = new TH1F("gamma_spectrum","Gamma spectrum",500,0,1500);
 	gamma_spectrum->SetLineColor(1);
@@ -46,5 +46,5 @@ void spectrum_fantom()
 	c1->cd(2)->SetGrid();
 	electron_spectrum->Draw();
 
-	c1->SaveAs("fantom_model6_without.png");
+	c1->SaveAs("figure/fantom_spectrum.png");
 }

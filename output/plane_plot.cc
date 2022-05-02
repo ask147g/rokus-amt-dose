@@ -10,7 +10,6 @@ void plane_plot()
 	std::ifstream gamma_data;
 	gamma_data.open("plane/planeResult.csv", std::ios::in);
 
-
 	TGraph2D *gamma_spectrum = new TGraph2D();
 	if (gamma_data) {
 		while (1) {
@@ -21,12 +20,12 @@ void plane_plot()
 		}
 	}
 
-	TCanvas *c1 = new TCanvas("c1","Spectrum",800,1000);
+	TCanvas *c1 = new TCanvas("c1","Plane",800,1000);
 	c1->cd(1);
 	c1->cd(1)->SetGrid();
 	gamma_spectrum->GetXaxis()->SetTitle("x");
 	gamma_spectrum->GetYaxis()->SetTitle("y");
 	gamma_spectrum->Draw("TRI2 Z”");
 
-	c1->SaveAs("plane/fantom_model7.png");
+	c1->SaveAs("figure/plane.png");
 }

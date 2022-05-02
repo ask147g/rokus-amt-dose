@@ -1,0 +1,2 @@
+/vis/geometry/set/colour cap2Logic 128 0 128 1 0.2
+/vis/geometry/set/forceSolid cap2Logic ! !

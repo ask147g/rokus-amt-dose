@@ -35,15 +35,17 @@ private:
   double decreasingActivity = 1;
   double numEvents = 0;
   G4double placement_container = 0;
+  G4double planeBiasing;
   G4int planeAmount = 0;
   G4double planeStep;
 
   std::map<std::pair<G4double, G4double>, G4double > PlaneXYEdep;
-  void SetDistance();
+  G4double SetDistance();
   void SetDistanceType0();
 
   void ResOutputOneContainer(const G4Run* run);
   void ResOutputPlane(const G4Run* run);
+  void ResOutputPlaneDistance(const G4Run* run);
 
   std::pair<G4double, G4double> GetXY(G4int copy);
 };
