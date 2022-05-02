@@ -5,7 +5,7 @@
 #include <vector>
 #include <sstream>
 
-void plane_plot()
+void plane_distance()
 {
 	gStyle->SetTitleOffset(1.5,"x");
 	gStyle->SetTitleOffset(1.5,"y");

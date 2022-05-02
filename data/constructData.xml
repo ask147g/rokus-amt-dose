@@ -49,3 +49,7 @@
     <planeBiasing>164</planeBiasing>
     <step>5</step>
 </plane>
+
+<closet>
+    <Biasing>164</Biasing>
+</plane>

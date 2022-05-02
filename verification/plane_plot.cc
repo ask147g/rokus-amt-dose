@@ -7,26 +7,36 @@
 
 void plane_plot()
 {
-	std::ifstream gamma_data;
-	gamma_data.open("plane/planeExp.csv", std::ios::in);
+	gStyle->SetTitleOffset(1.5,"x");
+	gStyle->SetTitleOffset(1.5,"y");
+	gStyle->SetTitleOffset(1.5,"z");
+	gROOT->ForceStyle();
+	std::ifstream input;
+	input.open("plane/planeExp.csv", std::ios::in);
 
 
-	TGraph2D *gamma_spectrum = new TGraph2D();
-	if (gamma_data) {
+	TGraph2D *output = new TGraph2D();
+	if (input) {
 		while (1) {
 			double x,y,D;
-			gamma_data >> x >> y >> D;
-			if (gamma_data.eof()) break;
-			gamma_spectrum->SetPoint(gamma_spectrum->GetN(), x, y, D);
+			input >> x >> y >> D;
+			if (input.eof()) break;
+			output->SetPoint(output->GetN(), x, y, D);
 		}
 	}
 
-	TCanvas *c1 = new TCanvas("c1","Spectrum",800,1000);
+	TCanvas *c1 = new TCanvas("c1","Plane",0,0,600,600);
 	c1->cd(1);
 	c1->cd(1)->SetGrid();
-	gamma_spectrum->GetXaxis()->SetTitle("x");
-	gamma_spectrum->GetYaxis()->SetTitle("y");
-	gamma_spectrum->Draw("TRI2 Z”");
+	output->SetTitle("; x, cm; y, cm; D, rad/s");
+	output->Draw("surf1");
 
-	c1->SaveAs("figure/plane.png");
+	TCanvas *c2 = new TCanvas("c2","Plane",0,0,600,600);
+	c2->cd(1);
+	c2->cd(1)->SetGrid();
+	output->SetTitle("; x, cm; y, cm; D, rad/s");
+	output->Draw("colz");
+
+	c1->SaveAs("figure/plane3D.png");
+	c2->SaveAs("figure/plane2D.png");
 }
