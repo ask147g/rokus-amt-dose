@@ -60,10 +60,10 @@ int main(int argc, char** argv) {
 	runManager->SetVerboseLevel(0);
 	runManager->Initialize();
 
-	if (ttype == 0 || ttype == 2 || ttype == 3 || ttype == 5)
+	if (ttype == 0 || ttype == 2 || ttype == 3 || ttype == 5 || ttype == 6 || ttype == 8)
 		runManager->BeamOn(particles);
 	
-	if (ttype == 1 || ttype == 4) {
+	if (ttype == 1 || ttype == 4 || ttype == 7) {
 		G4UIExecutive *ui = new G4UIExecutive(argc,argv);
 
 		G4VisManager *visManager = new G4VisExecutive();
@@ -73,17 +73,16 @@ int main(int argc, char** argv) {
 
 		UImanager->ApplyCommand("/control/execute macro/vis.mac");
 
+		rapidxml::xml_document<> doc;
+		rapidxml::xml_node<> *root_node;
+
+    	std::ifstream theFile ("data/constructData.xml");
+    	std::vector<char> buffer((std::istreambuf_iterator<char>(theFile)), std::istreambuf_iterator<char>());
+    	buffer.push_back('\0');
+    	doc.parse<0>(&buffer[0]);
+		std::string string;
+		bool is;
 		if (ttype == 1) {
-			rapidxml::xml_document<> doc;
-			rapidxml::xml_node<> *root_node;
-
-    		std::ifstream theFile ("data/constructData.xml");
-    		std::vector<char> buffer((std::istreambuf_iterator<char>(theFile)), std::istreambuf_iterator<char>());
-    		buffer.push_back('\0');
-    		doc.parse<0>(&buffer[0]);
-			std::string string;
-			bool is;
-
 			root_node = doc.first_node("radioactivehead")->first_node("source");
 			string = root_node->first_attribute("cap2")->value();
 			std::istringstream(string) >> std::boolalpha >> is;
@@ -99,6 +98,26 @@ int main(int argc, char** argv) {
 			string = root_node->first_attribute("placed")->value();
 			std::istringstream(string) >> std::boolalpha >> is;
 			if (is) UImanager->ApplyCommand("/control/execute macro/container.mac");
+		}
+		if (ttype == 4) {
+			root_node = doc.first_node("radioactivehead")->first_node("source");
+			string = root_node->first_attribute("cap2")->value();
+			std::istringstream(string) >> std::boolalpha >> is;
+			if (is) UImanager->ApplyCommand("/control/execute macro/cap1.mac");
+
+
+			string = root_node->first_attribute("cap2")->value();
+			std::istringstream(string) >> std::boolalpha >> is;
+			if (is) UImanager->ApplyCommand("/control/execute macro/cap2.mac");
+
+
+			root_node = doc.first_node("container");
+			string = root_node->first_attribute("placed")->value();
+			std::istringstream(string) >> std::boolalpha >> is;
+			if (is) UImanager->ApplyCommand("/control/execute macro/container.mac");
+		}
+		if (ttype == 7) {
+			UImanager->ApplyCommand("/control/execute macro/container.mac");
 		}
 		ui->SessionStart();
 	}

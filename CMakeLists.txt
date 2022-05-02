@@ -14,6 +14,9 @@ file(COPY ${MACRO_FILES} DESTINATION ${PROJECT_BINARY_DIR}/macro)
 file(GLOB dataFile "data/*.xml") 
 file(COPY ${dataFile} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/data)
 
+file(GLOB dataFile "data/*.csv") 
+file(COPY ${dataFile} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/data)
+
 file(GLOB script "scripts/*.sh") 
 file(COPY ${script} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/scripts)
 
@@ -22,6 +25,7 @@ file(COPY ${root} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/output)
 
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/output/plane)
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/output/plane/distance)
+file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/output/closet)
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/output/spectrum)
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/output/distance)
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/output/figure)

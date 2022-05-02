@@ -28,7 +28,9 @@ public:
   void SetDecreasingActivity(double dec) {decreasingActivity = dec;};
   void SetNumEvents(double num) {numEvents = num;};
   void PlaneEdep(G4double edep, G4int copy);
+  void ClosetEdepCalc(G4double edep, G4int copy);
   void SetParametersPlane(G4int amount, G4double step);
+  void SetParametersCloset(G4int amount);
 private:
   G4double mass;
   G4double Edep = 0;
@@ -39,13 +41,17 @@ private:
   G4int planeAmount = 0;
   G4double planeStep;
 
+  G4int closetAmount = 0;
+
   std::map<std::pair<G4double, G4double>, G4double > PlaneXYEdep;
+  std::map<G4int, G4double > ClosetEdep;
   G4double SetDistance();
   void SetDistanceType0();
 
   void ResOutputOneContainer(const G4Run* run);
   void ResOutputPlane(const G4Run* run);
   void ResOutputPlaneDistance(const G4Run* run);
+  void ResOutputCloset(const G4Run* run);
 
   std::pair<G4double, G4double> GetXY(G4int copy);
 };

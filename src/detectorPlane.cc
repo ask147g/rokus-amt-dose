@@ -12,7 +12,11 @@ G4bool PlaneDetector::ProcessHits(G4Step* step, G4TouchableHistory*) {
     run->SetVolumeMass(mass/CLHEP::kg);
     isMass = true;
   }
-  run->PlaneEdep(step->GetTotalEnergyDeposit()/CLHEP::joule, step->GetPreStepPoint()->GetTouchable()->GetCopyNumber());
+  if (TypeCalculations::GetTypeCalc() >= 3 && TypeCalculations::GetTypeCalc() <= 5)
+    run->PlaneEdep(step->GetTotalEnergyDeposit()/CLHEP::joule, step->GetPreStepPoint()->GetTouchable()->GetCopyNumber());
+  else
+    run->ClosetEdepCalc(step->GetTotalEnergyDeposit()/CLHEP::joule, step->GetPreStepPoint()->GetTouchable()->GetCopyNumber());
+
   return true;
 }
 

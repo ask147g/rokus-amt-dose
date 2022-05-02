@@ -11,14 +11,28 @@ SimpleRunAction::SimpleRunAction() : G4UserRunAction() {
 SimpleRunAction::~SimpleRunAction() {}
 
 void SimpleRunAction::BeginOfRunAction(const G4Run* aRun) {
+  if (TypeCalculations::GetTypeCalc() >= 3 && TypeCalculations::GetTypeCalc() <= 5) {
   for (G4int x = 0; x < planeAmount; ++x) {
-    for (G4int y = 0; y <planeAmount; ++y) {
+    for (G4int y = 0; y < planeAmount; ++y) {
       PlaneXYEdep.insert({std::make_pair(x*planeStep/10., y*planeStep/10.), 0.}); // cm
     }
   }
 
   std::ofstream out("output/plane/planeResult.csv", std::ios_base::out | std::ios_base::trunc);
   out.close();
+  }
+  if (TypeCalculations::GetTypeCalc() >= 6 && TypeCalculations::GetTypeCalc() <= 8) {
+    G4int copy = 0;
+  for (G4int x = 0; x < closetAmount; ++x) {
+    for (G4int y = 0; y < closetAmount; ++y) {
+      ClosetEdep.insert({copy, 0.});
+      ++copy;
+    }
+  }
+
+  std::ofstream out("output/closet/closetResult.csv", std::ios_base::out | std::ios_base::trunc);
+  out.close();
+  }
 }
 
 void SimpleRunAction::EndOfRunAction(const G4Run* run) {
@@ -29,6 +43,8 @@ void SimpleRunAction::EndOfRunAction(const G4Run* run) {
     ResOutputPlane(run);
   if (TypeCalculations::GetTypeCalc() == 5)
     ResOutputPlaneDistance(run);
+  if (TypeCalculations::GetTypeCalc() >= 6 && TypeCalculations::GetTypeCalc() <= 8)
+    ResOutputCloset(run);
 }
 
 void SimpleRunAction::GetValue(G4double edep) {Edep += edep;}
@@ -93,8 +109,23 @@ void SimpleRunAction::ResOutputPlaneDistance(const G4Run* run) {
   }
 }
 
+void SimpleRunAction::ResOutputCloset(const G4Run* run) {
+  std::ofstream out("output/closet/closetResult.csv", std::ios_base::app);
+  if (out.is_open()) {
+    std::map<G4int, G4double>::iterator it_Edep = ClosetEdep.begin();
+    for (it_Edep; it_Edep != ClosetEdep.end(); ++it_Edep) {
+      out << it_Edep->first << " " << it_Edep->second << std::endl;
+    }
+  out.close();
+  }
+}
+
 void SimpleRunAction::PlaneEdep(G4double edep, G4int copy) {
   PlaneXYEdep.find(GetXY(copy))->second += 100*edep*decreasingActivity/(mass+0.);
+}
+
+void SimpleRunAction::ClosetEdepCalc(G4double edep, G4int copy) {
+  ClosetEdep.find(copy)->second += 100*edep*decreasingActivity/(mass+0.);
 }
 
 std::pair<G4double, G4double> SimpleRunAction::GetXY(G4int copy) {
@@ -106,4 +137,8 @@ std::pair<G4double, G4double> SimpleRunAction::GetXY(G4int copy) {
 void SimpleRunAction::SetParametersPlane(G4int amount, G4double step) {
   planeAmount = amount;
   planeStep = step;
+}
+
+void SimpleRunAction::SetParametersCloset(G4int amount) {
+  closetAmount = amount;
 }

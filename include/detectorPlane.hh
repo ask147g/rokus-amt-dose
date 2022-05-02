@@ -4,6 +4,7 @@
 #include "G4VSensitiveDetector.hh"
 
 #include "run.hh"
+#include "typeCalc.hh"
 
 class G4Step;
 class G4HCofThisEvent;

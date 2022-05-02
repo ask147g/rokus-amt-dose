@@ -49,6 +49,10 @@ private:
 	void BuildContainerPlane(G4LogicalVolume *logicWorld);
 	void ReCalculatePlaneBiasing();
 
+	void ReadCloset();
+	void BuildFantomCloset(G4LogicalVolume *logicWorld);
+	void BuildContainerCloset(G4LogicalVolume *logicWorld);
+
 	void ReadSizes();
 	void ReadMaterials();
 	G4double SetDistance();
@@ -98,7 +102,11 @@ private:
 	G4double planeSize;
 	G4double planeBiasing;
 	G4double planeStep;
-	G4double planePlacement;
+
+	// closet
+	G4int closetAmount = 0;
+	G4double closetBiasing;
+	std::vector<G4bool> closetTable;
 
 	// general
 	G4double biasRocus;

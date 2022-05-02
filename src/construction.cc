@@ -4,7 +4,6 @@ MyDetectorConstruction::MyDetectorConstruction(SimpleRunAction *arun): G4VUserDe
 	ReadSizes();
 	ReadMaterials();
 	if (TypeCalculations::GetTypeCalc() == 2) placement_container = SetDistance();
-	std::cout << placement_container << std::endl;
 	if (TypeCalculations::GetTypeCalc() == 5) {
 		planeBiasing = SetDistance();
 		ReCalculatePlaneBiasing();
@@ -20,6 +19,11 @@ MyDetectorConstruction::MyDetectorConstruction(SimpleRunAction *arun): G4VUserDe
 
 	if (TypeCalculations::GetTypeCalc() >= 3 && TypeCalculations::GetTypeCalc() <= 5)
 		run->SetParametersPlane(amountPlane, planeStep);
+
+	if (TypeCalculations::GetTypeCalc() >= 6 && TypeCalculations::GetTypeCalc() <= 8) {
+		ReadCloset();
+		run->SetParametersCloset(closetAmount);
+	}
 }
 
 
@@ -53,10 +57,8 @@ G4VPhysicalVolume *MyDetectorConstruction::Construct() {
 
 	// closet
 	if ((TypeCalculations::GetTypeCalc()) >= 6 && TypeCalculations::GetTypeCalc() <= 8) {
-		if (planeContainerPlaced)
-			BuildContainerPlane(world.first);
-		if (planeFantomPlaced)
-			BuildFantomPlane(world.first);
+			BuildContainerCloset(world.first);
+			BuildFantomCloset(world.first);
 	}
 
 	return world.second;
@@ -73,6 +75,20 @@ void MyDetectorConstruction::ReCalculatePlaneBiasing() {
 	if (planeBiasing > 750*CLHEP::cm) planeSize = 350;
 	if (planeBiasing > 850*CLHEP::cm) planeSize = 400;
 	planeSize *= CLHEP::cm;
+}
+
+void MyDetectorConstruction::ReadCloset() {
+	std::ifstream input;
+	input.open("data/closet.csv", std::ios::in);
+	if (input) {
+		while (1) {
+			int k;
+			if (input.eof()) break;
+			input >> k;
+			closetTable.push_back(k);
+		}
+	}
+	closetAmount = sqrt(closetTable.size());
 }
 
 void MyDetectorConstruction::ReadSizes() {
@@ -141,6 +157,10 @@ void MyDetectorConstruction::ReadSizes() {
 	planeSize = std::stof(root_node->first_node("planeSize")->value()); planeSize *= CLHEP::cm;
 	planeBiasing = std::stof(root_node->first_node("planeBiasing")->value()); planeBiasing *= CLHEP::cm;
 	planeStep = std::stof(root_node->first_node("step")->value()); planeStep *= CLHEP::cm;
+
+	// closet
+	root_node = doc.first_node("closet");
+	closetBiasing = std::stof(root_node->first_node("Biasing")->value()); closetBiasing *= CLHEP::cm;
 }
 
 
@@ -473,8 +493,8 @@ void MyDetectorConstruction::BuildDiaphragm(G4LogicalVolume *logicWorld) {
 
 void MyDetectorConstruction::BuildFantomPlane(G4LogicalVolume *logicWorld) {
 	int copy = 0;
-	for (int x = -amountPlane/2.; x < amountPlane/2.; ++x) {
-		for (int y = -amountPlane/2.; y < amountPlane/2.; ++y) {
+	for (int y = amountPlane/2.; y > -amountPlane/2.; --y) {
+		for (int x = -amountPlane/2.; x < amountPlane/2.; ++x) {
 			BuildFantom(logicWorld, x*planeStep, y*planeStep, -biasRocus-planeBiasing, copy);
 			++copy;
 		}
@@ -484,10 +504,39 @@ void MyDetectorConstruction::BuildFantomPlane(G4LogicalVolume *logicWorld) {
 
 void MyDetectorConstruction::BuildContainerPlane(G4LogicalVolume *logicWorld) {
 	int copy = 0;
-	for (int x = -amountPlane/2.; x < amountPlane/2.; ++x) {
-		for (int y = -amountPlane/2.; y < amountPlane/2.; ++y) {
+	for (int y = amountPlane/2.; y > -amountPlane/2.; --y) {
+		for (int x = -amountPlane/2.; x < amountPlane/2.; ++x) {
 			BuildContainer(logicWorld, x*planeStep, y*planeStep, -biasRocus-planeBiasing, copy);
 			++copy;
+		}
+	}
+}
+
+void MyDetectorConstruction::BuildFantomCloset(G4LogicalVolume *logicWorld) {
+	int copy = 0;
+	std::vector<G4bool>::iterator it = closetTable.begin();
+	for (int y = closetAmount/2.; y > -closetAmount/2.; --y) {
+		for (int x = -closetAmount/2.; x < closetAmount/2.; ++x) {
+			if (*it) {
+				BuildFantom(logicWorld, x*edge_container, y*edge_container, -biasRocus-closetBiasing, copy);
+			}
+			++copy;
+			++it;
+		}
+	}
+}
+
+
+void MyDetectorConstruction::BuildContainerCloset(G4LogicalVolume *logicWorld) {
+	int copy = 0;
+	std::vector<G4bool>::iterator it = closetTable.begin();
+	for (int y = closetAmount/2.; y > -closetAmount/2.; --y) {
+		for (int x = -closetAmount/2.; x < closetAmount/2.; ++x) {
+			if (*it) {
+				BuildContainer(logicWorld, x*edge_container, y*edge_container, -biasRocus-closetBiasing, copy);
+			}
+			++copy;
+			++it;
 		}
 	}
 }
@@ -521,7 +570,7 @@ void MyDetectorConstruction::ConstructSDandField() {
 		}
 	}
 
-	if (TypeCalculations::GetTypeCalc() >= 3 && TypeCalculations::GetTypeCalc() <= 5) {
+	if (TypeCalculations::GetTypeCalc() >= 3 && TypeCalculations::GetTypeCalc() <= 8) {
 		if (fantomPlaced) {
 			G4VSensitiveDetector* sd = new PlaneDetector("planeDet", run);
 			SetSensitiveDetector("fantomLogic", sd, true);
