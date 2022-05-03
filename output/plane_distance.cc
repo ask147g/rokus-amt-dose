@@ -7,6 +7,7 @@
 
 void plane_distance()
 {
+	// not work
 	gStyle->SetTitleOffset(1.5,"x");
 	gStyle->SetTitleOffset(1.5,"y");
 	gStyle->SetTitleOffset(1.5,"z");
