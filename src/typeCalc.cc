@@ -14,5 +14,5 @@ void TypeCalculations::TypeMessenger() {
 	std::cout << "5 for calculation of a plane distribution dose using bash" << std::endl;
 	std::cout << "6 for calculation of closet from constructData.xml" << std::endl;
 	std::cout << "7 for calculation of closet with visualization" << std::endl;
-	std::cout << "8 for calculation of closet using bash" << std::endl;
+	//std::cout << "8 for calculation of closet using bash" << std::endl;
 }

@@ -12,7 +12,7 @@ void plane_plot()
 	gStyle->SetTitleOffset(1.5,"z");
 	gROOT->ForceStyle();
 	std::ifstream input;
-	input.open("plane/planeExp.csv", std::ios::in);
+	input.open("plane/planeExp2.csv", std::ios::in);
 
 
 	TGraph2D *output = new TGraph2D();

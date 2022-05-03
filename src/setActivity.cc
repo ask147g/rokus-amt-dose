@@ -65,6 +65,8 @@ void SourceActivity::GetActivityData() {
     CalcDeltaTime(std::pair<std::tm,std::tm> (inDate, lasDate));
     root_node = doc.first_node("increasingTimes");
     decreasingActivity = std::stof(root_node->value());
+    root_node = doc.first_node("time");
+    timeModel = std::stof(root_node->value());
 
 
     CalculateActivity();

@@ -47,10 +47,11 @@ int main(int argc, char** argv) {
 
 	SourceActivity *Activity = new SourceActivity();
 	float Bq = Activity->GetActivity();
-	int particles = Bq/Activity->GetIncreasing();
+	int particles = Bq/Activity->GetIncreasing()*Activity->GetTime();;
 	
 	SimpleRunAction *run = new SimpleRunAction();
 	run->SetDecreasingActivity(Activity->GetIncreasing());
+	run->SetTime(Activity->GetTime());
 	delete Activity;
 	run->SetNumEvents(particles);
 	MyDetectorConstruction *construct = new MyDetectorConstruction(run);

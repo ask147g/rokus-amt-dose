@@ -25,11 +25,11 @@ void closet_plot(){
 	double size = 1./(amount+2);
 	std::cout << amount << std::endl;
 
-   TCanvas *c1 = new TCanvas("c1","Canvas Example",200,10,600,600);
+   TCanvas *c1 = new TCanvas("c1","Closet",200,10,600,600);
  
    gBenchmark->Start("closet_plot");
  
-   TPad *pad1 = new TPad("pad1","This is pad1",0.05,1,1,1);
+   TPad *pad1 = new TPad("pad1","pad1",0.05,1,1,1);
    pad1->SetFillColor(0);
    pad1->Draw();
  

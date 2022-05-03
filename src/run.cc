@@ -36,7 +36,7 @@ void SimpleRunAction::BeginOfRunAction(const G4Run* aRun) {
 }
 
 void SimpleRunAction::EndOfRunAction(const G4Run* run) {
-  Edep = 100*Edep*decreasingActivity/(mass+0.);
+  Edep = 100*Edep*decreasingActivity/(mass+0.)/time;
   if (TypeCalculations::GetTypeCalc() >= 0 && TypeCalculations::GetTypeCalc() <= 2)
     ResOutputOneContainer(run);
   if (TypeCalculations::GetTypeCalc() >= 3 && TypeCalculations::GetTypeCalc() < 5)
@@ -121,11 +121,11 @@ void SimpleRunAction::ResOutputCloset(const G4Run* run) {
 }
 
 void SimpleRunAction::PlaneEdep(G4double edep, G4int copy) {
-  PlaneXYEdep.find(GetXY(copy))->second += 100*edep*decreasingActivity/(mass+0.);
+  PlaneXYEdep.find(GetXY(copy))->second += 100*edep*decreasingActivity/(mass+0.)/time;
 }
 
 void SimpleRunAction::ClosetEdepCalc(G4double edep, G4int copy) {
-  ClosetEdep.find(copy)->second += 100*edep*decreasingActivity/(mass+0.);
+  ClosetEdep.find(copy)->second += 100*edep*decreasingActivity/(mass+0.)/time;
 }
 
 std::pair<G4double, G4double> SimpleRunAction::GetXY(G4int copy) {

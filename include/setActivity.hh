@@ -21,11 +21,13 @@ private:
     std::tm SetDate(std::string Date);
     void CalcDeltaTime(std::pair<std::tm, std::tm> date);
     double decreasingActivity = 1;
+    double timeModel = 1;
 public:
     SourceActivity();
     ~SourceActivity();
     float GetActivity() {return activity;};
     double GetIncreasing() {return decreasingActivity;};
+    double GetTime() {return timeModel;};
 };
 
 #endif
