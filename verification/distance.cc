@@ -66,7 +66,7 @@ void distance()
    		gr_err->SetMarkerColor(4);
    		gr_err->SetLineColor(4);
 
-	std::string name = "distance/model1.csv";
+	std::string name = "distance/model2.csv";
 	model.open(name, std::ios::in);
 
 
@@ -153,7 +153,7 @@ void distance()
 
 	gr_err->Draw("APL3");
 	gr_err->GetXaxis()->SetTitle("r, cm");
-	gr_err->GetYaxis()->SetTitle("mistake, %");
+	gr_err->GetYaxis()->SetTitle("#delta, %");
 
 	c1->SaveAs("figure/dose.png");
 	c2->SaveAs("figure/error.png");	

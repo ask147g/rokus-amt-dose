@@ -167,7 +167,7 @@ void distance_plot()
 
 	mg_err->Draw("APL3");
 	mg_err->GetXaxis()->SetTitle("r, cm");
-	mg_err->GetYaxis()->SetTitle("mistake, %");
+	mg_err->GetYaxis()->SetTitle("#delta, %");
 	c2->BuildLegend();
 
 	c1->SaveAs("figure/dose.png");

@@ -52,4 +52,7 @@
 
 <closet>
     <Biasing>760</Biasing>
+    <dx>0</dx>
+    <dy>0</dy>
+    <angle>0</angle>
 </plane>

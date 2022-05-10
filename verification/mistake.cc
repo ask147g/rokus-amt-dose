@@ -117,7 +117,7 @@ void mistake()
 	mg->Add(gr1);
 
 	mg->Draw("apl3");
-	mg->GetXaxis()->SetTitle("Particles, amount");
+	mg->GetXaxis()->SetTitle("Decay, amount");
 	mg->GetYaxis()->SetTitle("ln(D), mrad/sec");
 	c1->BuildLegend();
 	auto c2 = new TCanvas("c2","error",700,500);
@@ -127,8 +127,8 @@ void mistake()
 	gr_err->Draw("APL3");
 	c1->SetLogx();
 	c2->SetLogx();
-	gr_err->GetXaxis()->SetTitle("Particles, amount");
-	gr_err->GetYaxis()->SetTitle("mistake, %");
+	gr_err->GetXaxis()->SetTitle("Decay, amount");
+	gr_err->GetYaxis()->SetTitle("#delta, %");
 
 	c1->SaveAs("figure/dose_mc.png");
 	c2->SaveAs("figure/error_mc.png");	

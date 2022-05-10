@@ -40,8 +40,8 @@ private:
 	
 	std::pair<G4LogicalVolume*, G4VPhysicalVolume*> BuildWorld();
 	void BuildRadioaciveHead(G4LogicalVolume *logicWorld);
-	void BuildFantom(G4LogicalVolume *logicWorld, G4double x, G4double y, G4double z, G4int copy);
-	void BuildContainer(G4LogicalVolume *logicWorld, G4double x, G4double y, G4double z, G4int copy);
+	void BuildFantom(G4LogicalVolume *logicWorld, G4double x, G4double y, G4double z, G4int copy, G4RotationMatrix* rotation);
+	void BuildContainer(G4LogicalVolume *logicWorld, G4double x, G4double y, G4double z, G4int copy, G4RotationMatrix* rotation);
 	void BuildDiaphragm(G4LogicalVolume *logicWorld);
 	void BuildMaterials();
 
@@ -107,12 +107,17 @@ private:
 	G4int closetAmount = 0;
 	G4double closetBiasing;
 	std::vector<G4bool> closetTable;
+	G4double dxBiasing = 0;
+	G4double dyBiasing = 0;
+	G4double angleBiasing = 0;
+	G4RotationMatrix *closetRot;
 
 	// general
 	G4double biasRocus;
 	G4double height_cap;
 	G4double diameter_half;
 	G4int amountPlane;
+	G4RotationMatrix* rotAll;
 	// MATERIALS
 	// uran
 	G4Material *Uran;

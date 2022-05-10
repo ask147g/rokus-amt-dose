@@ -15,6 +15,10 @@ MyDetectorConstruction::MyDetectorConstruction(SimpleRunAction *arun): G4VUserDe
 	height_cap = (source_height-source_active_height-2*diameter_half)/4.;
 	biasRocus = -biasingHead+Rsphere/2.+edge_container/2.;
 	amountPlane = ceil(planeSize/planeStep);
+	closetRot = new G4RotationMatrix();
+	closetRot -> rotateY(angleBiasing);
+	rotAll = new G4RotationMatrix();
+
 	if (amountPlane % 2 == 0) ++amountPlane;
 
 	if (TypeCalculations::GetTypeCalc() >= 3 && TypeCalculations::GetTypeCalc() <= 5)
@@ -42,9 +46,9 @@ G4VPhysicalVolume *MyDetectorConstruction::Construct() {
 	// only 1 container
 	if ((TypeCalculations::GetTypeCalc()) >= 0 && TypeCalculations::GetTypeCalc() <= 2) {
 		if (containerPlaced)
-			BuildContainer(world.first, 0, 0, -biasRocus-placement_container, 0);
+			BuildContainer(world.first, 0, 0, -biasRocus-placement_container, 0, rotAll);
 		if (fantomPlaced)
-			BuildFantom(world.first, 0, 0, -biasRocus-placement_container, 0);
+			BuildFantom(world.first, 0, 0, -biasRocus-placement_container, 0, rotAll);
 	}
 	
 	// plane
@@ -67,13 +71,13 @@ G4VPhysicalVolume *MyDetectorConstruction::Construct() {
 
 void MyDetectorConstruction::ReCalculatePlaneBiasing() {
 	planeSize = 50;
-	if (planeBiasing > 100*CLHEP::cm) planeSize = 100;
-	if (planeBiasing > 150*CLHEP::cm) planeSize = 150;
-	if (planeBiasing > 200*CLHEP::cm) planeSize = 200;
-	if (planeBiasing > 450*CLHEP::cm) planeSize = 250;
-	if (planeBiasing > 650*CLHEP::cm) planeSize = 300;
-	if (planeBiasing > 750*CLHEP::cm) planeSize = 350;
-	if (planeBiasing > 850*CLHEP::cm) planeSize = 400;
+	if (planeBiasing >= 100*CLHEP::cm) planeSize = 100;
+	if (planeBiasing >= 150*CLHEP::cm) planeSize = 150;
+	if (planeBiasing >= 200*CLHEP::cm) planeSize = 200;
+	if (planeBiasing >= 450*CLHEP::cm) planeSize = 250;
+	if (planeBiasing >= 650*CLHEP::cm) planeSize = 300;
+	if (planeBiasing >= 750*CLHEP::cm) planeSize = 350;
+	if (planeBiasing >= 850*CLHEP::cm) planeSize = 400;
 	planeSize *= CLHEP::cm;
 }
 
@@ -161,6 +165,9 @@ void MyDetectorConstruction::ReadSizes() {
 	// closet
 	root_node = doc.first_node("closet");
 	closetBiasing = std::stof(root_node->first_node("Biasing")->value()); closetBiasing *= CLHEP::cm;
+	dxBiasing = std::stof(root_node->first_node("dx")->value()); dxBiasing *= CLHEP::cm;
+	dyBiasing = std::stof(root_node->first_node("dy")->value()); dyBiasing *= CLHEP::cm;
+	angleBiasing = std::stof(root_node->first_node("angle")->value()); angleBiasing *= CLHEP::degree;
 }
 
 
@@ -417,7 +424,7 @@ void MyDetectorConstruction::BuildRadioaciveHead(G4LogicalVolume *logicWorld) {
 }
 
 
-void MyDetectorConstruction::BuildContainer(G4LogicalVolume *logicWorld, G4double x, G4double y, G4double z, G4int copy) {
+void MyDetectorConstruction::BuildContainer(G4LogicalVolume *logicWorld, G4double x, G4double y, G4double z, G4int copy, G4RotationMatrix* rotation) {
 	G4NistManager *nist = G4NistManager::Instance();
 	G4Material *PbMat = nist->FindOrBuildMaterial("G4_Pb");
 	G4Material *AlMat = nist->FindOrBuildMaterial("G4_Al");
@@ -442,7 +449,7 @@ void MyDetectorConstruction::BuildContainer(G4LogicalVolume *logicWorld, G4doubl
 
 	G4LogicalVolume *innerLogic = new G4LogicalVolume(innerWorld, AlMat, "innerLogic");
 
-	new G4PVPlacement(0,
+	new G4PVPlacement(rotation,
 					G4ThreeVector(x, y, z), 
 					innerLogic, 
 					"innerPhys",
@@ -453,7 +460,7 @@ void MyDetectorConstruction::BuildContainer(G4LogicalVolume *logicWorld, G4doubl
 
 	G4LogicalVolume *outerLogic = new G4LogicalVolume(outerWorld, PbMat, "outerLogic");
 
-	new G4PVPlacement(0,
+	new G4PVPlacement(rotation,
 					G4ThreeVector(x, y, z), 
 					outerLogic, 
 					"outerPhys",
@@ -464,7 +471,7 @@ void MyDetectorConstruction::BuildContainer(G4LogicalVolume *logicWorld, G4doubl
 }
 
 
-void MyDetectorConstruction::BuildFantom(G4LogicalVolume *logicWorld, G4double x, G4double y, G4double z, G4int copy) {
+void MyDetectorConstruction::BuildFantom(G4LogicalVolume *logicWorld, G4double x, G4double y, G4double z, G4int copy, G4RotationMatrix* rotation) {
 	G4NistManager *nist = G4NistManager::Instance();
 	G4Material *SiMat = nist->FindOrBuildMaterial("G4_Si");
 
@@ -475,7 +482,7 @@ void MyDetectorConstruction::BuildFantom(G4LogicalVolume *logicWorld, G4double x
 	
 	G4LogicalVolume *fantomLogic = new G4LogicalVolume(fantomWorld, SiMat, "fantomLogic");
 	
-	new G4PVPlacement(0,
+	new G4PVPlacement(rotation,
 					G4ThreeVector(x, y, z), 
 					fantomLogic, 
 					"fantomPhys",
@@ -495,7 +502,7 @@ void MyDetectorConstruction::BuildFantomPlane(G4LogicalVolume *logicWorld) {
 	int copy = 0;
 	for (int y = amountPlane/2.; y > -amountPlane/2.; --y) {
 		for (int x = -amountPlane/2.; x < amountPlane/2.; ++x) {
-			BuildFantom(logicWorld, x*planeStep, y*planeStep, -biasRocus-planeBiasing, copy);
+			BuildFantom(logicWorld, x*planeStep, y*planeStep, -biasRocus-planeBiasing, copy, rotAll);
 			++copy;
 		}
 	}
@@ -506,7 +513,7 @@ void MyDetectorConstruction::BuildContainerPlane(G4LogicalVolume *logicWorld) {
 	int copy = 0;
 	for (int y = amountPlane/2.; y > -amountPlane/2.; --y) {
 		for (int x = -amountPlane/2.; x < amountPlane/2.; ++x) {
-			BuildContainer(logicWorld, x*planeStep, y*planeStep, -biasRocus-planeBiasing, copy);
+			BuildContainer(logicWorld, x*planeStep, y*planeStep, -biasRocus-planeBiasing, copy, rotAll);
 			++copy;
 		}
 	}
@@ -518,7 +525,7 @@ void MyDetectorConstruction::BuildFantomCloset(G4LogicalVolume *logicWorld) {
 	for (int y = closetAmount/2.; y > -closetAmount/2.; --y) {
 		for (int x = -closetAmount/2.; x < closetAmount/2.; ++x) {
 			if (*it) {
-				BuildFantom(logicWorld, x*edge_container, y*edge_container, -biasRocus-closetBiasing, copy);
+				BuildFantom(logicWorld, dxBiasing+x*(edge_container)*cos(angleBiasing), y*edge_container+dyBiasing, -biasRocus-closetBiasing+x*(edge_container)*sin(angleBiasing), copy, closetRot);
 			}
 			++copy;
 			++it;
@@ -533,7 +540,7 @@ void MyDetectorConstruction::BuildContainerCloset(G4LogicalVolume *logicWorld) {
 	for (int y = closetAmount/2.; y > -closetAmount/2.; --y) {
 		for (int x = -closetAmount/2.; x < closetAmount/2.; ++x) {
 			if (*it) {
-				BuildContainer(logicWorld, x*edge_container, y*edge_container, -biasRocus-closetBiasing, copy);
+				BuildContainer(logicWorld, dxBiasing+x*(edge_container)*cos(angleBiasing), y*edge_container+dyBiasing, -biasRocus-closetBiasing+x*(edge_container)*sin(angleBiasing), copy, closetRot);
 			}
 			++copy;
 			++it;

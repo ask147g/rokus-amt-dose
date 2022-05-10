@@ -9,7 +9,7 @@ echo "0" > distanceResult.csv
 rm -r distanceResult.csv
 cd ..
 cd ..
-cd output
+cd scripts
 for ((i=0; i<"${amount}"; i++))
 do
 distance=$(("${init}"+"${i}"*"${step}"))

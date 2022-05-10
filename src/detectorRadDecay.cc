@@ -26,6 +26,8 @@ G4bool DetectorRadDecay::ProcessHits(G4Step* step, G4TouchableHistory*) {
   G4String name = step->GetTrack()->GetParticleDefinition()->G4ParticleDefinition::GetParticleName();
   if (kine == 0) return true;
 
+
+  // change container or with huge amount of particles gonna be a crush
   if (name == "gamma") {
     gamma_data.push_back(kine/CLHEP::keV);
   }
