@@ -37,6 +37,9 @@ MyDetectorConstruction::~MyDetectorConstruction() {}
 G4VPhysicalVolume *MyDetectorConstruction::Construct() {
 	std::pair<G4LogicalVolume*, G4VPhysicalVolume*> world;
 	world = BuildWorld();
+
+	if (isWalls)
+		BuildWalls(world.first);
 	
 	if (radioactiveheadPlaced)
 		BuildRadioaciveHead(world.first);
@@ -266,6 +269,13 @@ std::pair<G4LogicalVolume*, G4VPhysicalVolume*> MyDetectorConstruction::BuildWor
 								true);
 
 	return std::make_pair(logicWorld, physWorld);
+}
+
+void MyDetectorConstruction::BuildWalls(G4LogicalVolume* logicWorld) {
+	G4NistManager *nist = G4NistManager::Instance();
+	G4Material *concreteMat = nist->FindOrBuildMaterial("G4_CONCRETE");
+
+
 }
 
 

@@ -4,7 +4,6 @@
 #include <iostream>
  
 void closet_mistake(){
-
 	std::ifstream exp, geant;
 	exp.open("closet/exp.csv", std::ios::in);
 	geant.open("closet/closetResult.csv", std::ios::in);
@@ -77,5 +76,5 @@ void closet_mistake(){
    }
  
   gBenchmark->Show("closet_plot");
-  c1->SaveAs("figure/closet.png");
+  c1->SaveAs("figure/closet_mistake.png");
 }

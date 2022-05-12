@@ -2,7 +2,7 @@
 init=0
 amount=15
 step=70
-mc_time=10
+mc_time=1
 cd ..
 cd output/distance
 echo "0" > distanceResult.csv

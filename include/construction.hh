@@ -45,6 +45,8 @@ private:
 	void BuildDiaphragm(G4LogicalVolume *logicWorld);
 	void BuildMaterials();
 
+	void BuildWalls(G4LogicalVolume* logicWorld);
+
 	void BuildFantomPlane(G4LogicalVolume *logicWorld);
 	void BuildContainerPlane(G4LogicalVolume *logicWorld);
 	void ReCalculatePlaneBiasing();
@@ -111,6 +113,9 @@ private:
 	G4double dyBiasing = 0;
 	G4double angleBiasing = 0;
 	G4RotationMatrix *closetRot;
+
+	// walls
+	G4bool isWalls = true;
 
 	// general
 	G4double biasRocus;
