@@ -64,6 +64,7 @@ int main(int argc, char** argv) {
 
 	if (ttype == 0 || ttype == 2 || ttype == 3 || ttype == 5 || ttype == 6 || ttype == 8)
 		runManager->BeamOn(particles);
+		runManager->BeamOn(particles);
 	
 	if (ttype == 1 || ttype == 4 || ttype == 7) {
 		G4UIExecutive *ui = new G4UIExecutive(argc,argv);

@@ -5,7 +5,7 @@
 
 #include "G4VSensitiveDetector.hh"
 #include "G4RootAnalysisManager.hh"
-#include "g4root.hh"
+#include "G4AnalysisManager.hh"
 
 #include "run.hh"
 

@@ -8,6 +8,8 @@ include_directories(${PROJECT_SOURCE_DIR}/include)
 file(GLOB sources ${PROJECT_SOURCE_DIR}/src/*.cc)
 file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.hh)
 
+file(GLOB rapid_headers ${PROJECT_SOURCE_DIR}/include/rapidxml/*.hpp)
+
 file(GLOB MACRO_FILES "macro/*.mac")
 file(COPY ${MACRO_FILES} DESTINATION ${PROJECT_BINARY_DIR}/macro)
 
@@ -30,7 +32,7 @@ file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/output/spectrum)
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/output/distance)
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/output/figure)
 
-add_executable(rocus rocus.cc ${sources} ${headers})
+add_executable(rocus rocus.cc ${sources} ${headers} ${rapid_headers})
 target_link_libraries(rocus ${Geant4_LIBRARIES})
 
 add_custom_target(ROCUS-AMT DEPENDS rocus)

@@ -6,8 +6,7 @@
 
 #include "G4UserRunAction.hh"
 #include "G4Run.hh"
-#include "G4RootAnalysisManager.hh"
-#include "g4root.hh"
+#include "G4AnalysisManager.hh"
 
 #include "setActivity.hh"
 #include "typeCalc.hh"
