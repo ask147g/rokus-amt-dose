@@ -15,3 +15,20 @@ cmake -DGEANT4_INSTALL_DATA=ON \
 -DGEANT4_USE_RAYTRACER_X11=ON .. && \
 make -j8 && make install
 
+# install rokus-amt-dose project
+WORKDIR /software/rokus-amt-dose
+COPY data/* data/
+COPY include/*.hh include/
+COPY include/rapidxml/*.hpp include/rapidxml/
+COPY  macro/*.mac macro/
+COPY output/*.cc output/
+COPY scripts/*.sh scripts/
+COPY src/*.cc src/
+COPY CMakeLists.txt .
+COPY rocus.cc .
+
+# start rokus-amt-dose
+COPY run.sh run.sh
+RUN chmod +x run.sh
+
+CMD ./run.sh
